@@ -24,6 +24,32 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'officer', 'admin'],
       default: 'student'
     },
+    status: {
+      type: String,
+      required: true,
+      enum: ['pending', 'active', 'inactive'],
+      default: 'active'
+    },
+    department: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
+      default: null
+    },
+    caseAccessConfig: {
+      accessScope: {
+        type: String,
+        enum: ['department', 'all', 'custom'],
+        default: 'department'
+      },
+      assignedCategories: {
+        type: [String],
+        default: []
+      },
+      canHandleEscalated: {
+        type: Boolean,
+        default: false
+      }
+    },
     tokenVersion: {
       type: Number,
       default: 0
@@ -35,4 +61,3 @@ const userSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('User', userSchema);
-

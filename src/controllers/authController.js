@@ -84,14 +84,32 @@ exports.register = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Self-registered officers require admin approval; students are active
+    const initialStatus = assignedRole === 'officer' ? 'pending' : 'active';
+
     // Create user in MongoDB
     const user = await User.create({
       name: name.trim(),
       email: trimmedEmail,
       password: hashedPassword,
       role: assignedRole,
+      status: initialStatus,
       tokenVersion: 0
     });
+
+    if (initialStatus === 'pending') {
+      return res.status(201).json({
+        success: true,
+        message: 'Officer registration submitted. Account is pending administrator approval.',
+        user: {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          status: user.status
+        }
+      });
+    }
 
     const token = generateToken(user);
     res.cookie('token', token, cookieOptions);
@@ -104,7 +122,8 @@ exports.register = async (req, res) => {
         id: user._id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        status: user.status
       }
     });
   } catch (error) {
@@ -148,6 +167,21 @@ exports.login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password.'
+      });
+    }
+
+    // Check account status
+    if (user.status === 'inactive') {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Please contact administrator.'
+      });
+    }
+
+    if (user.status === 'pending') {
+      return res.status(403).json({
+        success: false,
+        message: 'Officer account is pending administrator approval.'
       });
     }
 

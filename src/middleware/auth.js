@@ -59,12 +59,30 @@ async function authenticateToken(req, res, next) {
       });
     }
 
+    // Check account activation status
+    if (user.status === 'inactive') {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Access denied.'
+      });
+    }
+
+    if (user.status === 'pending') {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is pending administrator approval. Access denied.'
+      });
+    }
+
     // Attach decoded info and current token to req
     req.user = {
       id: user._id.toString(),
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      status: user.status,
+      department: user.department ? user.department.toString() : null,
+      caseAccessConfig: user.caseAccessConfig
     };
     req.token = token;
     req.tokenExp = decoded.exp;

@@ -1,17 +1,22 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
 const { authenticateToken, requireRole } = require('../middleware/auth');
+const { evaluateCaseAccess } = require('../middleware/caseAccess');
 
 // All officer routes require valid auth AND 'officer' or 'admin' role
-// Students are strictly blocked with 403 Forbidden
 router.use(authenticateToken, requireRole('officer', 'admin'));
 
-router.get('/dashboard', (req, res) => {
+router.get('/dashboard', async (req, res) => {
+  const officer = await User.findById(req.user.id).populate('department', 'name code');
+
   return res.status(200).json({
     success: true,
     message: 'Welcome to the Grievance Officer Portal',
     portal: 'officer',
     user: req.user,
+    department: officer ? officer.department : null,
+    caseAccessConfig: officer ? officer.caseAccessConfig : null,
     data: {
       pendingReviewsCount: 14,
       escalatedCasesCount: 3,
@@ -33,6 +38,42 @@ router.get('/assigned-complaints', (req, res) => {
       { id: 'CMP-102', title: 'Class timetable collision on Tuesdays', status: 'Assigned' }
     ]
   });
+});
+
+/**
+ * Verify whether this officer has permission to access a case
+ * POST /api/officer/verify-case-access
+ * Body: { department, category, isEscalated }
+ */
+router.post('/verify-case-access', async (req, res) => {
+  try {
+    const officer = await User.findById(req.user.id);
+    const caseData = req.body || {};
+
+    const evaluation = evaluateCaseAccess(officer, caseData);
+
+    if (!evaluation.allowed) {
+      return res.status(403).json({
+        success: false,
+        message: 'Case access denied.',
+        reason: evaluation.reason,
+        officerConfig: officer.caseAccessConfig,
+        officerDepartment: officer.department
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Case access granted.',
+      reason: evaluation.reason
+    });
+  } catch (error) {
+    console.error('Verify case access error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error evaluating case access.'
+    });
+  }
 });
 
 module.exports = router;

@@ -1,18 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Department = require('../models/Department');
+const adminController = require('../controllers/adminController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 
 // All admin routes strictly require 'admin' role
 // Both students and officers are strictly blocked with 403 Forbidden
 router.use(authenticateToken, requireRole('admin'));
 
+// --- System Dashboard & User Management ---
 router.get('/dashboard', async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const students = await User.countDocuments({ role: 'student' });
     const officers = await User.countDocuments({ role: 'officer' });
     const admins = await User.countDocuments({ role: 'admin' });
+    const departments = await Department.countDocuments();
 
     return res.status(200).json({
       success: true,
@@ -24,6 +28,7 @@ router.get('/dashboard', async (req, res) => {
         students,
         officers,
         admins,
+        departments,
         systemStatus: 'Operational',
         securityMode: 'Strict RBAC Active',
         database: 'MongoDB'
@@ -40,7 +45,11 @@ router.get('/dashboard', async (req, res) => {
 
 router.get('/users', async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: 1 });
+    const users = await User.find()
+      .select('-password')
+      .populate('department', 'name code')
+      .sort({ createdAt: 1 });
+
     return res.status(200).json({
       success: true,
       portal: 'admin',
@@ -71,7 +80,7 @@ router.patch('/users/:id/role', async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { role: role.toLowerCase() },
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     ).select('-password');
 
     if (!updatedUser) {
@@ -94,5 +103,21 @@ router.patch('/users/:id/role', async (req, res) => {
     });
   }
 });
+
+// Activate or deactivate user/officer account
+router.patch('/users/:id/status', adminController.updateUserStatus);
+
+// --- Department Management ---
+router.post('/departments', adminController.createDepartment);
+router.get('/departments', adminController.getDepartments);
+router.get('/departments/:id', adminController.getDepartmentById);
+router.patch('/departments/:id', adminController.updateDepartment);
+
+// --- Officer Management ---
+router.post('/officers', adminController.createOfficer);
+router.get('/officers/pending', adminController.getPendingOfficers);
+router.patch('/officers/:id/approve', adminController.approveOfficer);
+router.patch('/officers/:id/department', adminController.assignOfficerDepartment);
+router.patch('/officers/:id/case-access', adminController.configureOfficerCaseAccess);
 
 module.exports = router;
