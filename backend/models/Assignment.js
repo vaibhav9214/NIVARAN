@@ -8,7 +8,7 @@ const assignmentSchema = new mongoose.Schema(
       ref: "Grievance",
       required: true,
       immutable: true,
-      index: true,
+     
     },
 
     officer: {
