@@ -2,6 +2,9 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Department = require('../models/Department');
+const Grievance = require('../models/Grievance');
+const AuditEvent = require('../models/AuditEvent');
+const { computeSlaMetrics } = require('../utils/slaCalculator');
 
 /**
  * ========================================================
@@ -531,4 +534,299 @@ exports.configureOfficerCaseAccess = async (req, res) => {
     });
   }
 };
+
+/**
+ * ========================================================
+ * PAGE 11: ADMIN DASHBOARD & INSTITUTION-WIDE REPORTING
+ * ========================================================
+ */
+
+/**
+ * Page 11: Admin Dashboard
+ * GET /api/admin/dashboard
+ */
+exports.getAdminDashboard = async (req, res) => {
+  try {
+    // 1. Institution-wide entity counts
+    const [
+      totalUsers,
+      studentsCount,
+      officersCount,
+      adminsCount,
+      departmentsCount,
+      totalGrievances,
+      submittedCount,
+      underReviewCount,
+      inProgressCount,
+      awaitingCount,
+      resolvedCount,
+      rejectedCount,
+      withdrawnCount,
+      forwardedCount,
+      escalatedCount,
+      overdueCount
+    ] = await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({ role: 'student' }),
+      User.countDocuments({ role: 'officer' }),
+      User.countDocuments({ role: 'admin' }),
+      Department.countDocuments(),
+      Grievance.countDocuments(),
+      Grievance.countDocuments({ status: 'Submitted' }),
+      Grievance.countDocuments({ status: 'Under Review' }),
+      Grievance.countDocuments({ status: 'In Progress' }),
+      Grievance.countDocuments({ status: 'Awaiting Student Response' }),
+      Grievance.countDocuments({ status: 'Resolved' }),
+      Grievance.countDocuments({ status: 'Rejected' }),
+      Grievance.countDocuments({ status: 'Withdrawn' }),
+      Grievance.countDocuments({ status: 'Forwarded' }),
+      Grievance.countDocuments({ isEscalated: true }),
+      Grievance.countDocuments({
+        status: { $nin: ['Resolved', 'Rejected', 'Withdrawn', 'Closed'] },
+        slaDeadline: { $lt: new Date() }
+      })
+    ]);
+
+    const activeGrievances = submittedCount + underReviewCount + inProgressCount + awaitingCount + forwardedCount;
+
+    // SLA compliance rate
+    const totalFinished = resolvedCount + rejectedCount;
+    let complianceRate = 100;
+    if (activeGrievances + totalFinished > 0) {
+      const nonOverdueActive = Math.max(0, activeGrievances - overdueCount);
+      complianceRate = Math.round(((nonOverdueActive + resolvedCount) / (activeGrievances + totalFinished)) * 1000) / 10;
+    }
+
+    // 2. Workload Charts: By Department
+    const allDepartments = await Department.find().sort({ name: 1 });
+    const workloadByDepartment = await Promise.all(
+      allDepartments.map(async (dept) => {
+        const [
+          deptTotal,
+          deptPending,
+          deptInProgress,
+          deptResolved,
+          deptRejected,
+          deptOverdue,
+          deptOfficers
+        ] = await Promise.all([
+          Grievance.countDocuments({ department: dept._id }),
+          Grievance.countDocuments({ department: dept._id, status: { $in: ['Submitted', 'Under Review'] } }),
+          Grievance.countDocuments({ department: dept._id, status: 'In Progress' }),
+          Grievance.countDocuments({ department: dept._id, status: 'Resolved' }),
+          Grievance.countDocuments({ department: dept._id, status: 'Rejected' }),
+          Grievance.countDocuments({
+            department: dept._id,
+            status: { $nin: ['Resolved', 'Rejected', 'Withdrawn', 'Closed'] },
+            slaDeadline: { $lt: new Date() }
+          }),
+          User.countDocuments({ department: dept._id, role: 'officer' })
+        ]);
+
+        return {
+          departmentId: dept._id,
+          name: dept.name,
+          code: dept.code,
+          total: deptTotal,
+          pending: deptPending,
+          inProgress: deptInProgress,
+          resolved: deptResolved,
+          rejected: deptRejected,
+          overdue: deptOverdue,
+          officerCount: deptOfficers
+        };
+      })
+    );
+
+    // 3. Workload Charts: By Priority
+    const priorityAgg = await Grievance.aggregate([
+      { $group: { _id: '$priority', count: { $sum: 1 } } }
+    ]);
+    const workloadByPriority = ['Urgent', 'High', 'Medium', 'Low'].map((p) => {
+      const match = priorityAgg.find((item) => item._id === p);
+      return { priority: p, count: match ? match.count : 0 };
+    });
+
+    // 4. Workload Charts: By Category
+    const categoryAgg = await Grievance.aggregate([
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+    const workloadByCategory = categoryAgg.map((item) => ({
+      category: item._id,
+      count: item.count
+    }));
+
+    // 5. Recent System Activity (Audit Events)
+    const recentActivity = await AuditEvent.find()
+      .populate('performedBy', 'name email role')
+      .sort({ timestamp: -1 })
+      .limit(10);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Welcome to the Administrator Control Center',
+      portal: 'admin',
+      user: req.user,
+      // Backward-compatible stats object
+      stats: {
+        totalUsers,
+        students: studentsCount,
+        officers: officersCount,
+        admins: adminsCount,
+        departments: departmentsCount,
+        totalGrievances,
+        activeGrievances,
+        resolvedGrievances: resolvedCount,
+        systemStatus: 'Operational',
+        securityMode: 'Strict RBAC Active',
+        database: 'MongoDB'
+      },
+      statusCounts: {
+        total: totalGrievances,
+        submitted: submittedCount,
+        underReview: underReviewCount,
+        inProgress: inProgressCount,
+        awaitingStudentResponse: awaitingCount,
+        resolved: resolvedCount,
+        rejected: rejectedCount,
+        withdrawn: withdrawnCount,
+        forwarded: forwardedCount,
+        active: activeGrievances,
+        overdue: overdueCount,
+        escalated: escalatedCount
+      },
+      workloadCharts: {
+        byDepartment: workloadByDepartment,
+        byPriority: workloadByPriority,
+        byCategory: workloadByCategory,
+        institutionSlaComplianceRate: `${complianceRate}%`,
+        overdueCases: overdueCount
+      },
+      recentActivity
+    });
+  } catch (error) {
+    console.error('Admin dashboard error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching admin dashboard statistics.'
+    });
+  }
+};
+
+/**
+ * Admin Master Grievances Queue
+ * GET /api/admin/complaints
+ */
+exports.getAdminComplaints = async (req, res) => {
+  try {
+    const {
+      search,
+      department,
+      status,
+      priority,
+      category,
+      isOverdue,
+      isEscalated,
+      page = 1,
+      limit = 10,
+      sort = '-createdAt'
+    } = req.query;
+
+    const filter = {};
+
+    if (department) {
+      if (mongoose.Types.ObjectId.isValid(department)) {
+        filter.department = department;
+      } else {
+        const deptDoc = await Department.findOne({ code: String(department).toUpperCase() });
+        if (deptDoc) filter.department = deptDoc._id;
+      }
+    }
+
+    if (search && search.trim()) {
+      const term = search.trim();
+      const regex = new RegExp(term, 'i');
+
+      const matchedStudents = await User.find({
+        role: 'student',
+        $or: [{ name: regex }, { email: regex }]
+      }).select('_id');
+      const studentIds = matchedStudents.map((s) => s._id);
+
+      filter.$or = [
+        { ticketId: regex },
+        { title: regex },
+        { description: regex },
+        { category: regex },
+        { student: { $in: studentIds } }
+      ];
+    }
+
+    if (status && status !== 'all') {
+      filter.status = status;
+    }
+
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (isEscalated !== undefined) {
+      filter.isEscalated = isEscalated === 'true' || isEscalated === true;
+    }
+
+    if (isOverdue === 'true' || isOverdue === true) {
+      filter.slaDeadline = { $lt: new Date() };
+      filter.status = { $nin: ['Resolved', 'Rejected', 'Withdrawn', 'Closed'] };
+    }
+
+    let sortOption = { createdAt: -1 };
+    if (sort === 'deadline' || sort === 'slaDeadline') {
+      sortOption = { slaDeadline: 1 };
+    } else if (sort === 'priority') {
+      sortOption = { priority: 1, createdAt: -1 };
+    } else if (typeof sort === 'string') {
+      sortOption = sort;
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [totalCount, complaintsDocs] = await Promise.all([
+      Grievance.countDocuments(filter),
+      Grievance.find(filter)
+        .populate('department', 'name code')
+        .populate('student', 'name email')
+        .populate('assignedOfficer', 'name email')
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limitNum)
+    ]);
+
+    const complaintsWithSla = complaintsDocs.map(computeSlaMetrics);
+
+    return res.status(200).json({
+      success: true,
+      portal: 'admin',
+      count: complaintsWithSla.length,
+      totalCount,
+      page: pageNum,
+      totalPages: Math.ceil(totalCount / limitNum),
+      limit: limitNum,
+      complaints: complaintsWithSla
+    });
+  } catch (error) {
+    console.error('Error fetching admin complaints:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching master complaints queue.'
+    });
+  }
+};
+
 

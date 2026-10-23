@@ -8,40 +8,8 @@ const { handleFileUpload } = require('../middleware/upload');
 // All student routes require valid auth AND 'student' role
 router.use(authenticateToken, requireRole('student'));
 
-// Student Dashboard Summary
-router.get('/dashboard', async (req, res) => {
-  try {
-    const activeComplaintsCount = await Grievance.countDocuments({
-      student: req.user.id,
-      status: { $in: ['Submitted', 'Under Review', 'In Progress'] }
-    });
-    const resolvedComplaintsCount = await Grievance.countDocuments({
-      student: req.user.id,
-      status: 'Resolved'
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: 'Welcome to the Student Portal',
-      portal: 'student',
-      user: req.user,
-      data: {
-        activeComplaintsCount,
-        resolvedComplaintsCount,
-        announcements: [
-          { id: 1, title: 'Hostel WiFi upgrade completed', date: '2026-10-20' },
-          { id: 2, title: 'Library extended hours during exams', date: '2026-10-18' }
-        ]
-      }
-    });
-  } catch (error) {
-    console.error('Student dashboard error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error fetching dashboard.'
-    });
-  }
-});
+// Page 04: Student Dashboard Summary (Status counts, deadlines, action required)
+router.get('/dashboard', grievanceController.getStudentDashboard);
 
 // Submit Grievance (supports multipart/form-data with file attachments or JSON)
 router.post('/complaints', handleFileUpload('attachments'), grievanceController.submitGrievance);

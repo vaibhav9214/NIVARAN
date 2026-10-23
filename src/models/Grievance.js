@@ -95,6 +95,14 @@ const grievanceSchema = new mongoose.Schema(
       enum: ['Low', 'Medium', 'High', 'Urgent'],
       default: 'Medium'
     },
+    slaHours: {
+      type: Number,
+      default: 168
+    },
+    slaDeadline: {
+      type: Date,
+      index: true
+    },
     assignedOfficer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

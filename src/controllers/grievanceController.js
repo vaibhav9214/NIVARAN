@@ -7,6 +7,7 @@ const AuditEvent = require('../models/AuditEvent');
 const { generateUniqueTicketId } = require('../utils/ticketGenerator');
 const { executeTransition, recordAuditEvent } = require('../services/lifecycleService');
 const { evaluateCaseAccess } = require('../middleware/caseAccess');
+const { calculateSlaDeadline, computeSlaMetrics } = require('../utils/slaCalculator');
 
 /**
  * Helper to remove uploaded files if validation fails
@@ -129,7 +130,11 @@ exports.submitGrievance = async (req, res) => {
       uploadedAt: new Date()
     }));
 
-    // 7. Save Grievance in MongoDB
+    // 7. Calculate SLA Deadline based on priority
+    const cleanPriority = ['Low', 'Medium', 'High', 'Urgent'].includes(priority) ? priority : 'Medium';
+    const { slaHours, slaDeadline } = calculateSlaDeadline(cleanPriority);
+
+    // 8. Save Grievance in MongoDB
     const grievance = await Grievance.create({
       ticketId,
       student: req.user.id,
@@ -137,7 +142,9 @@ exports.submitGrievance = async (req, res) => {
       category: category.trim(),
       department: deptDoc._id,
       description: description.trim(),
-      priority: ['Low', 'Medium', 'High', 'Urgent'].includes(priority) ? priority : 'Medium',
+      priority: cleanPriority,
+      slaHours,
+      slaDeadline,
       attachments,
       status: 'Submitted',
       statusHistory: [
@@ -155,7 +162,7 @@ exports.submitGrievance = async (req, res) => {
     // Populate department details for clean response
     await grievance.populate('department', 'name code');
 
-    // 8. Generate Audit Event for Initial Submission
+    // 9. Generate Audit Event for Initial Submission
     await recordAuditEvent({
       grievanceId: grievance._id,
       ticketId: grievance.ticketId,
@@ -170,11 +177,12 @@ exports.submitGrievance = async (req, res) => {
         department: deptDoc._id,
         departmentCode: deptDoc.code,
         priority: grievance.priority,
+        slaDeadline: grievance.slaDeadline,
         attachmentCount: grievance.attachments.length
       }
     });
 
-    // 9. Display Submission Confirmation
+    // 10. Display Submission Confirmation
     return res.status(201).json({
       success: true,
       message: 'Grievance submitted successfully.',
@@ -186,6 +194,7 @@ exports.submitGrievance = async (req, res) => {
         departmentCode: deptDoc.code,
         status: grievance.status,
         priority: grievance.priority,
+        slaDeadline: grievance.slaDeadline,
         attachmentCount: grievance.attachments.length,
         submittedAt: grievance.createdAt
       },
@@ -202,21 +211,196 @@ exports.submitGrievance = async (req, res) => {
 };
 
 /**
- * Retrieve grievances submitted by the logged-in student
+ * Page 04: Student Dashboard
+ * GET /api/student/dashboard
+ */
+exports.getStudentDashboard = async (req, res) => {
+  try {
+    const studentId = req.user.id;
+
+    // 1. Status Counts
+    const [
+      totalCount,
+      submittedCount,
+      underReviewCount,
+      inProgressCount,
+      awaitingCount,
+      resolvedCount,
+      rejectedCount,
+      withdrawnCount,
+      forwardedCount,
+      overdueCount
+    ] = await Promise.all([
+      Grievance.countDocuments({ student: studentId }),
+      Grievance.countDocuments({ student: studentId, status: 'Submitted' }),
+      Grievance.countDocuments({ student: studentId, status: 'Under Review' }),
+      Grievance.countDocuments({ student: studentId, status: 'In Progress' }),
+      Grievance.countDocuments({ student: studentId, status: 'Awaiting Student Response' }),
+      Grievance.countDocuments({ student: studentId, status: 'Resolved' }),
+      Grievance.countDocuments({ student: studentId, status: 'Rejected' }),
+      Grievance.countDocuments({ student: studentId, status: 'Withdrawn' }),
+      Grievance.countDocuments({ student: studentId, status: 'Forwarded' }),
+      Grievance.countDocuments({
+        student: studentId,
+        status: { $nin: ['Resolved', 'Rejected', 'Withdrawn', 'Closed'] },
+        slaDeadline: { $lt: new Date() }
+      })
+    ]);
+
+    const activeCount = submittedCount + underReviewCount + inProgressCount + awaitingCount + forwardedCount;
+
+    // 2. Action Required (Grievances awaiting student response)
+    const actionRequiredDocs = await Grievance.find({
+      student: studentId,
+      status: 'Awaiting Student Response'
+    })
+      .populate('department', 'name code')
+      .populate('assignedOfficer', 'name email')
+      .sort({ updatedAt: -1 });
+    const actionRequired = actionRequiredDocs.map(computeSlaMetrics);
+
+    // 3. Recent Complaints with SLA
+    const recentDocs = await Grievance.find({ student: studentId })
+      .populate('department', 'name code')
+      .populate('assignedOfficer', 'name email')
+      .sort({ createdAt: -1 })
+      .limit(5);
+    const recentGrievances = recentDocs.map(computeSlaMetrics);
+
+    const announcements = [
+      { id: 1, title: 'Hostel WiFi upgrade completed', date: '2026-10-20' },
+      { id: 2, title: 'Library extended hours during exams', date: '2026-10-18' }
+    ];
+
+    return res.status(200).json({
+      success: true,
+      message: 'Welcome to the Student Portal',
+      portal: 'student',
+      user: req.user,
+      statusCounts: {
+        total: totalCount,
+        submitted: submittedCount,
+        underReview: underReviewCount,
+        inProgress: inProgressCount,
+        awaitingStudentResponse: awaitingCount,
+        resolved: resolvedCount,
+        rejected: rejectedCount,
+        withdrawn: withdrawnCount,
+        forwarded: forwardedCount,
+        active: activeCount,
+        overdue: overdueCount
+      },
+      actionRequired,
+      recentGrievances,
+      announcements,
+      // Backward compatibility data
+      data: {
+        activeComplaintsCount: activeCount,
+        resolvedComplaintsCount: resolvedCount,
+        totalComplaints: totalCount,
+        announcements,
+        recentGrievances
+      }
+    });
+  } catch (error) {
+    console.error('Student dashboard error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error fetching student dashboard.'
+    });
+  }
+};
+
+/**
+ * Retrieve grievances submitted by the logged-in student (with search, filter, pagination, deadlines)
  * GET /api/student/complaints
  */
 exports.getMyGrievances = async (req, res) => {
   try {
-    const grievances = await Grievance.find({ student: req.user.id })
-      .populate('department', 'name code')
-      .populate('assignedOfficer', 'name email')
-      .sort({ createdAt: -1 });
+    const {
+      search,
+      status,
+      priority,
+      category,
+      department,
+      isOverdue,
+      page = 1,
+      limit = 10,
+      sort = '-createdAt'
+    } = req.query;
+
+    const filter = { student: req.user.id };
+
+    if (search && search.trim()) {
+      const regex = new RegExp(search.trim(), 'i');
+      filter.$or = [
+        { ticketId: regex },
+        { title: regex },
+        { description: regex },
+        { category: regex }
+      ];
+    }
+
+    if (status && status !== 'all') {
+      filter.status = status;
+    }
+
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    if (department) {
+      if (mongoose.Types.ObjectId.isValid(department)) {
+        filter.department = department;
+      } else {
+        const deptDoc = await Department.findOne({ code: String(department).toUpperCase() });
+        if (deptDoc) filter.department = deptDoc._id;
+      }
+    }
+
+    if (isOverdue === 'true' || isOverdue === true) {
+      filter.slaDeadline = { $lt: new Date() };
+      filter.status = { $nin: ['Resolved', 'Rejected', 'Withdrawn', 'Closed'] };
+    }
+
+    let sortOption = { createdAt: -1 };
+    if (sort === 'deadline' || sort === 'slaDeadline') {
+      sortOption = { slaDeadline: 1 };
+    } else if (sort === 'priority') {
+      sortOption = { priority: 1, createdAt: -1 };
+    } else if (typeof sort === 'string') {
+      sortOption = sort;
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [totalCount, complaintsDocs] = await Promise.all([
+      Grievance.countDocuments(filter),
+      Grievance.find(filter)
+        .populate('department', 'name code')
+        .populate('assignedOfficer', 'name email')
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limitNum)
+    ]);
+
+    const complaintsWithSla = complaintsDocs.map(computeSlaMetrics);
 
     return res.status(200).json({
       success: true,
       portal: 'student',
-      count: grievances.length,
-      complaints: grievances
+      count: complaintsWithSla.length,
+      totalCount,
+      page: pageNum,
+      totalPages: Math.ceil(totalCount / limitNum),
+      limit: limitNum,
+      complaints: complaintsWithSla
     });
   } catch (error) {
     console.error('Fetch student grievances error:', error);

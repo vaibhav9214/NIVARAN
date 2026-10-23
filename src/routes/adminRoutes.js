@@ -10,39 +10,14 @@ const { authenticateToken, requireRole } = require('../middleware/auth');
 // Both students and officers are strictly blocked with 403 Forbidden
 router.use(authenticateToken, requireRole('admin'));
 
-// --- System Dashboard & User Management ---
-router.get('/dashboard', async (req, res) => {
-  try {
-    const totalUsers = await User.countDocuments();
-    const students = await User.countDocuments({ role: 'student' });
-    const officers = await User.countDocuments({ role: 'officer' });
-    const admins = await User.countDocuments({ role: 'admin' });
-    const departments = await Department.countDocuments();
+// --- Page 11: Admin Dashboard & Global Reporting ---
+router.get('/dashboard', adminController.getAdminDashboard);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Welcome to the Administrator Control Center',
-      portal: 'admin',
-      user: req.user,
-      stats: {
-        totalUsers,
-        students,
-        officers,
-        admins,
-        departments,
-        systemStatus: 'Operational',
-        securityMode: 'Strict RBAC Active',
-        database: 'MongoDB'
-      }
-    });
-  } catch (error) {
-    console.error('Admin dashboard error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error fetching admin dashboard statistics.'
-    });
-  }
-});
+// --- Master Grievances Queue (Search, Filter, Pagination, Deadlines) ---
+router.get('/complaints', adminController.getAdminComplaints);
+router.get('/grievances', adminController.getAdminComplaints);
+
+// --- User Management ---
 
 router.get('/users', async (req, res) => {
   try {
