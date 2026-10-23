@@ -55,4 +55,21 @@ router.get('/grievances', grievanceController.getMyGrievances);
 router.get('/complaints/:identifier', grievanceController.getGrievanceById);
 router.get('/grievances/:identifier', grievanceController.getGrievanceById);
 
+// Student Lifecycle Actions:
+// 1. Withdraw grievance (institutional policy)
+router.post('/complaints/:identifier/withdraw', grievanceController.withdrawGrievance);
+router.post('/grievances/:identifier/withdraw', grievanceController.withdrawGrievance);
+
+// 2. Respond to officer inquiry (when in Awaiting Student Response)
+router.post('/complaints/:identifier/respond', grievanceController.respondToOfficer);
+router.post('/grievances/:identifier/respond', grievanceController.respondToOfficer);
+
+// 3. Submit feedback rating/comments or request reconsideration
+router.post('/complaints/:identifier/feedback', grievanceController.submitFeedbackOrReconsideration);
+router.post('/grievances/:identifier/feedback', grievanceController.submitFeedbackOrReconsideration);
+
+// 4. View grievance audit trail
+router.get('/complaints/:identifier/audit-trail', grievanceController.getAuditTrail);
+router.get('/grievances/:identifier/audit-trail', grievanceController.getAuditTrail);
+
 module.exports = router;

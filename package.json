@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node tests/auth.test.js && node tests/department_officer.test.js && node tests/grievance_submission.test.js"
+    "test": "node tests/auth.test.js && node tests/department_officer.test.js && node tests/grievance_submission.test.js && node tests/grievance_lifecycle.test.js"
   },
   "repository": {
     "type": "git",

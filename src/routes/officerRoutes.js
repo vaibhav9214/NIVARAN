@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Grievance = require('../models/Grievance');
+const grievanceController = require('../controllers/grievanceController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { evaluateCaseAccess } = require('../middleware/caseAccess');
 
@@ -106,5 +107,31 @@ router.post('/verify-case-access', async (req, res) => {
     });
   }
 });
+
+// --- Grievance Lifecycle Actions (Officer / Admin) ---
+
+// 1. General Status Transition
+router.patch('/complaints/:identifier/status', grievanceController.updateGrievanceStatus);
+router.patch('/grievances/:identifier/status', grievanceController.updateGrievanceStatus);
+
+// 2. Forward to another Department
+router.post('/complaints/:identifier/forward', grievanceController.forwardGrievance);
+router.post('/grievances/:identifier/forward', grievanceController.forwardGrievance);
+
+// 3. Resolve Grievance with resolution notes
+router.post('/complaints/:identifier/resolve', grievanceController.resolveGrievance);
+router.post('/grievances/:identifier/resolve', grievanceController.resolveGrievance);
+
+// 4. Reject Grievance with documented justification
+router.post('/complaints/:identifier/reject', grievanceController.rejectGrievance);
+router.post('/grievances/:identifier/reject', grievanceController.rejectGrievance);
+
+// 5. Request Information / Clarification from Student
+router.post('/complaints/:identifier/request-info', grievanceController.requestStudentInfo);
+router.post('/grievances/:identifier/request-info', grievanceController.requestStudentInfo);
+
+// 6. View Grievance Audit Trail
+router.get('/complaints/:identifier/audit-trail', grievanceController.getAuditTrail);
+router.get('/grievances/:identifier/audit-trail', grievanceController.getAuditTrail);
 
 module.exports = router;

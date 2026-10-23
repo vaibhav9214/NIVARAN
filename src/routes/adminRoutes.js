@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Department = require('../models/Department');
 const adminController = require('../controllers/adminController');
+const grievanceController = require('../controllers/grievanceController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 
 // All admin routes strictly require 'admin' role
@@ -119,5 +120,8 @@ router.get('/officers/pending', adminController.getPendingOfficers);
 router.patch('/officers/:id/approve', adminController.approveOfficer);
 router.patch('/officers/:id/department', adminController.assignOfficerDepartment);
 router.patch('/officers/:id/case-access', adminController.configureOfficerCaseAccess);
+
+// --- System Audit Trail ---
+router.get('/audit-events', grievanceController.getSystemAuditEvents);
 
 module.exports = router;
