@@ -17,6 +17,14 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    mustChangePassword: {
+        type: Boolean,
+        default: true,
+    },
+    passwordChangedAt: {
+        type: Date,
+        default: null,
+    },
 
     passwordHash: {
       type: String,
