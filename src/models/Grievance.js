@@ -156,7 +156,48 @@ const grievanceSchema = new mongoose.Schema(
         message: { type: String, required: true },
         respondedAt: { type: Date, default: Date.now }
       }
-    ]
+    ],
+    // Step 8: AI Features (Google Gemini gemini-3.5-flash via FastAPI)
+    // Checkpoint: AI suggestions appear alongside the original complaint,
+    // can be reviewed by a human, and never silently change official statuses or decisions.
+    aiInsights: {
+      summary: { type: String, default: null },
+      keyPoints: [{ type: String }],
+      suggestedCategory: { type: String, default: null },
+      suggestedDepartment: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department',
+        default: null
+      },
+      suggestedDepartmentName: { type: String, default: null },
+      classificationConfidence: { type: Number, default: 0 },
+      classificationReasoning: { type: String, default: null },
+      isInformationComplete: { type: Boolean, default: true },
+      missingInformation: [{ type: String }],
+      recommendedOfficerActions: [{ type: String }],
+      suggestedStudentQuery: { type: String, default: null },
+      recommendedPriority: { type: String, default: null },
+      suggestedSlaHours: { type: Number, default: null },
+      generatedAt: { type: Date, default: null },
+      model: { type: String, default: 'gemini-3.5-flash' },
+      disclaimer: {
+        type: String,
+        default: 'AI suggestions are advisory only and must be reviewed by an authorized human officer. AI does not alter official status.'
+      },
+      isReviewedByHuman: { type: Boolean, default: false },
+      humanDecision: {
+        type: String,
+        enum: ['Pending Review', 'Accepted', 'Modified', 'Rejected'],
+        default: 'Pending Review'
+      },
+      humanReviewNotes: { type: String, default: null },
+      reviewedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+      },
+      reviewedAt: { type: Date, default: null }
+    }
   },
   {
     timestamps: true
@@ -164,4 +205,3 @@ const grievanceSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Grievance', grievanceSchema);
-

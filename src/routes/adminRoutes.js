@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Department = require('../models/Department');
 const adminController = require('../controllers/adminController');
 const grievanceController = require('../controllers/grievanceController');
+const aiController = require('../controllers/aiController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 
 // All admin routes strictly require 'admin' role
@@ -16,6 +17,11 @@ router.get('/dashboard', adminController.getAdminDashboard);
 // --- Master Grievances Queue (Search, Filter, Pagination, Deadlines) ---
 router.get('/complaints', adminController.getAdminComplaints);
 router.get('/grievances', adminController.getAdminComplaints);
+
+// --- Step 8: AI Intelligence Administration ---
+router.get('/ai/status', aiController.getAiStatus);
+router.get('/ai/trends', aiController.getCampusAiTrends);
+router.post('/ai/trends', aiController.getCampusAiTrends);
 
 // --- User Management ---
 
