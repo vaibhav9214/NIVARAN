@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import StudentHeader from '../../components/student/StudentHeader';
 import SummaryCards from '../../components/student/SummaryCards';
@@ -12,6 +13,7 @@ import DocketModal from '../../components/stitch/DocketModal';
 import LodgeModal from '../../components/stitch/LodgeModal';
 
 export default function StudentDashboard() {
+  const navigate = useNavigate();
   const [viewState, setViewState] = useState('active'); // 'active' | 'empty' | 'loading'
   const [tableFilter, setTableFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,7 +59,8 @@ export default function StudentDashboard() {
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         activeNav="dashboard"
         onNavChange={(id) => {
-          if (id === 'submit-grievance') setIsLodgeModalOpen(true);
+          if (id === 'submit-grievance') navigate('/student/raise-grievance');
+          if (id === 'my-grievances') navigate('/student/my-grievances');
         }}
       />
 
@@ -69,6 +72,7 @@ export default function StudentDashboard() {
           onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
           searchQuery={searchQuery}
           onSearch={(q) => setSearchQuery(q)}
+          breadcrumb="Dashboard"
         />
 
         {/* Dashboard Main Scroll Canvas */}
@@ -153,13 +157,13 @@ export default function StudentDashboard() {
                 Your academic and residential record is completely clear. Should you ever encounter procedural, infrastructural, or welfare issues, NIVARAN guarantees statutory 15-day resolution transparency.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-space-md">
-                <button
-                  onClick={() => setIsLodgeModalOpen(true)}
+                <Link
+                  to="/student/raise-grievance"
                   className="inline-flex items-center gap-2 px-space-lg py-2.5 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg font-bold shadow-sm hover:bg-primary transition-all cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[20px]">add_task</span>
                   Lodge New Grievance
-                </button>
+                </Link>
                 <button
                   onClick={() => setIsSlaModalOpen(true)}
                   className="inline-flex items-center gap-2 px-space-md py-2.5 rounded-lg bg-surface border border-outline-variant text-on-surface font-label-lg text-label-lg font-medium hover:bg-surface-container-low transition-all cursor-pointer"
@@ -203,13 +207,13 @@ export default function StudentDashboard() {
                     <span className="material-symbols-outlined text-[18px]">verified</span>
                     <span>View SLA Handbook</span>
                   </button>
-                  <button
-                    onClick={() => setIsLodgeModalOpen(true)}
+                  <Link
+                    to="/student/raise-grievance"
                     className="inline-flex items-center gap-2 px-space-lg py-2.5 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg font-bold shadow-md hover:bg-primary hover:shadow-primary-container/20 active:translate-y-px transition-all cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[20px]">add_circle</span>
                     <span>+ Submit Grievance</span>
-                  </button>
+                  </Link>
                 </div>
               </section>
 
@@ -241,13 +245,9 @@ export default function StudentDashboard() {
 
               {/* 5. Quick Actions Section */}
               <QuickActionsGrid
-                onSubmitClick={() => setIsLodgeModalOpen(true)}
-                onTrackClick={() => {
-                  const el = document.getElementById('recent-table');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  else alert('Track Docket: Search with ticket ID above or click View Docket.');
-                }}
-                onArchiveClick={() => alert('Resolution Archive: 6 verified closed cases available for PDF export.')}
+                onSubmitClick={() => navigate('/student/raise-grievance')}
+                onTrackClick={() => navigate('/student/my-grievances')}
+                onArchiveClick={() => navigate('/student/my-grievances')}
               />
 
             </div>
