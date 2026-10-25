@@ -4,10 +4,18 @@ import { Link, useLocation } from 'react-router-dom';
 export default function StudentSidebar({ isMobileOpen, onCloseMobile, activeNav = 'dashboard', onNavChange }) {
   const location = useLocation();
 
+  const currentNav = activeNav || (
+    location.pathname.includes('raise-grievance')
+      ? 'submit-grievance'
+      : location.pathname.includes('my-grievances') || location.pathname.includes('grievance-details')
+      ? 'my-grievances'
+      : 'dashboard'
+  );
+
   const mainNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'grid_view', path: '/student/dashboard' },
-    { id: 'submit-grievance', label: 'Submit Grievance', icon: 'post_add', path: '#submit' },
-    { id: 'my-grievances', label: 'My Grievances', icon: 'assignment', badge: '6', badgeColor: 'bg-surface-container text-on-surface-variant', path: '#grievances' },
+    { id: 'submit-grievance', label: 'Submit Grievance', icon: 'post_add', path: '/student/raise-grievance' },
+    { id: 'my-grievances', label: 'My Grievances', icon: 'assignment', badge: '12', badgeColor: 'bg-surface-container-lowest text-primary-container border border-outline-variant/40 font-bold', path: '/student/my-grievances' },
     { id: 'notifications', label: 'Notifications', icon: 'notifications', badge: '3', badgeColor: 'bg-secondary text-on-secondary font-semibold', path: '#notifications' },
     { id: 'profile-settings', label: 'Profile & Settings', icon: 'settings', path: '#profile' },
   ];
@@ -19,7 +27,7 @@ export default function StudentSidebar({ isMobileOpen, onCloseMobile, activeNav 
   ];
 
   const handleItemClick = (item, e) => {
-    if (item.path.startsWith('#') || item.id === 'submit-grievance') {
+    if (item.path.startsWith('#')) {
       e.preventDefault();
       if (onNavChange) onNavChange(item.id);
       if (onCloseMobile) onCloseMobile();
@@ -77,18 +85,11 @@ export default function StudentSidebar({ isMobileOpen, onCloseMobile, activeNav 
             </span>
             <nav className="flex flex-col gap-space-xs">
               {mainNavItems.map((item) => {
-                const isActive = activeNav === item.id;
-                return (
-                  <a
-                    key={item.id}
-                    href={item.path}
-                    onClick={(e) => handleItemClick(item, e)}
-                    className={`flex items-center justify-between px-space-md py-2.5 rounded-lg transition-all duration-150 ${
-                      isActive
-                        ? 'bg-surface-container-low text-primary font-bold border-l-4 border-primary pl-[calc(theme(spacing.space-md)-4px)]'
-                        : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
-                    }`}
-                  >
+                const isActive = currentNav === item.id;
+                const isRouterLink = item.path.startsWith('/');
+
+                const content = (
+                  <>
                     <div className="flex items-center gap-space-sm">
                       <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                       <span className="font-label-lg text-label-lg">{item.label}</span>
@@ -98,6 +99,37 @@ export default function StudentSidebar({ isMobileOpen, onCloseMobile, activeNav 
                         {item.badge}
                       </span>
                     )}
+                  </>
+                );
+
+                const activeClasses = 'bg-surface-container-low text-primary-container font-bold border-l-4 border-primary-container pl-[calc(theme(spacing.space-md)-4px)]';
+                const inactiveClasses = 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface';
+
+                if (isRouterLink) {
+                  return (
+                    <Link
+                      key={item.id}
+                      to={item.path}
+                      onClick={() => onCloseMobile && onCloseMobile()}
+                      className={`flex items-center justify-between px-space-md py-2.5 rounded-lg transition-all duration-150 ${
+                        isActive ? activeClasses : inactiveClasses
+                      }`}
+                    >
+                      {content}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <a
+                    key={item.id}
+                    href={item.path}
+                    onClick={(e) => handleItemClick(item, e)}
+                    className={`flex items-center justify-between px-space-md py-2.5 rounded-lg transition-all duration-150 ${
+                      isActive ? activeClasses : inactiveClasses
+                    }`}
+                  >
+                    {content}
                   </a>
                 );
               })}
@@ -111,19 +143,38 @@ export default function StudentSidebar({ isMobileOpen, onCloseMobile, activeNav 
             Assistance
           </span>
           <nav className="flex flex-col gap-space-xs">
-            {assistanceItems.map((item) => (
-              <a
-                key={item.id}
-                href={item.path}
-                onClick={(e) => handleItemClick(item, e)}
-                className={`flex items-center gap-space-sm px-space-md py-2 rounded-lg transition-all duration-150 ${
-                  item.textClass || 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
-                <span className="font-label-lg text-label-lg">{item.label}</span>
-              </a>
-            ))}
+            {assistanceItems.map((item) => {
+              const isRouterLink = item.path.startsWith('/');
+              const className = `flex items-center gap-space-sm px-space-md py-2 rounded-lg transition-all duration-150 ${
+                item.textClass || 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
+              }`;
+
+              if (isRouterLink) {
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    onClick={() => onCloseMobile && onCloseMobile()}
+                    className={className}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                    <span className="font-label-lg text-label-lg">{item.label}</span>
+                  </Link>
+                );
+              }
+
+              return (
+                <a
+                  key={item.id}
+                  href={item.path}
+                  onClick={(e) => handleItemClick(item, e)}
+                  className={className}
+                >
+                  <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                  <span className="font-label-lg text-label-lg">{item.label}</span>
+                </a>
+              );
+            })}
           </nav>
 
           <div className="mt-space-sm pt-space-sm border-t border-outline-variant/20 flex items-center justify-between text-outline px-space-xs">

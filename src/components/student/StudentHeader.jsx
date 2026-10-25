@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery = '' }) {
+export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery = '', breadcrumb = 'Dashboard' }) {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   return (
@@ -22,7 +22,21 @@ export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery =
           <span className="material-symbols-outlined text-[16px]">home</span>
           <Link to="/" className="hover:text-primary transition-colors">Home</Link>
           <span className="text-outline-variant">/</span>
-          <span className="text-primary font-semibold">Dashboard</span>
+          {breadcrumb === 'Dashboard' ? (
+            <span className="text-primary font-semibold">Dashboard</span>
+          ) : breadcrumb.startsWith('GRV-') || breadcrumb.startsWith('NIV-') ? (
+            <>
+              <Link to="/student/my-grievances" className="hover:text-primary transition-colors">My Grievances</Link>
+              <span className="text-outline-variant">/</span>
+              <span className="text-primary-container font-semibold font-mono">#{breadcrumb.replace('#', '')}</span>
+            </>
+          ) : (
+            <>
+              <Link to="/student/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
+              <span className="text-outline-variant">/</span>
+              <span className="text-primary-container font-semibold">{breadcrumb}</span>
+            </>
+          )}
         </div>
 
         <div className="h-4 w-px bg-outline-variant/50 hidden md:block"></div>
@@ -37,7 +51,7 @@ export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery =
             value={searchQuery}
             onChange={(e) => onSearch && onSearch(e.target.value)}
             placeholder="Search your grievances..."
-            className="w-56 md:w-72 pl-9 pr-space-md py-1.5 bg-surface-container-low border border-outline-variant/40 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary focus:ring-2 focus:ring-secondary-container transition-all"
+            className="w-56 md:w-72 pl-9 pr-space-md py-1.5 bg-surface-container-low border border-outline-variant/40 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-secondary-container transition-all"
           />
         </div>
       </div>
@@ -97,13 +111,27 @@ export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery =
                 <span className="material-symbols-outlined text-[16px]">account_circle</span>
                 Student Profile
               </a>
-              <a
-                href="#settings"
-                className="flex items-center gap-2 px-4 py-2 text-xs text-on-surface hover:bg-surface-container-low transition-colors"
+              <Link
+                to="/student/raise-grievance"
+                className="flex items-center gap-2 px-4 py-2 text-xs text-primary hover:bg-surface-container-low transition-colors"
               >
-                <span className="material-symbols-outlined text-[16px]">tune</span>
-                Redressal Preferences
-              </a>
+                <span className="material-symbols-outlined text-[16px]">post_add</span>
+                Raise a Grievance
+              </Link>
+              <Link
+                to="/officer/dashboard"
+                className="flex items-center gap-2 px-4 py-2 text-xs text-secondary hover:bg-surface-container-low transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">shield_person</span>
+                Officer Desk Portal
+              </Link>
+              <Link
+                to="/admin/dashboard"
+                className="flex items-center gap-2 px-4 py-2 text-xs text-primary hover:bg-surface-container-low transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">corporate_fare</span>
+                Admin Portal
+              </Link>
               <div className="border-t border-outline-variant/20 mt-1 pt-1">
                 <Link
                   to="/"

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const MOCK_GRIEVANCES = [
   {
@@ -174,13 +175,13 @@ export default function GrievanceTable({ filter = 'all', onSelectGrievance, onFi
             </button>
           </div>
 
-          <button
-            onClick={() => onFilterChange && onFilterChange('all')}
+          <Link
+            to="/student/my-grievances"
             className="hidden sm:inline-flex items-center gap-1 font-label-lg text-label-lg font-semibold text-secondary hover:text-primary transition-colors cursor-pointer"
           >
             <span>View All</span>
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-          </button>
+          </Link>
         </div>
       </div>
 
