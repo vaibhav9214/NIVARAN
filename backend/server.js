@@ -8,12 +8,16 @@ const connectDB = require("./config/db");
 const app = express();
 const messageRoutes = require("./routes/messages");
 const notificationRoutes = require("./routes/notifications");
+const reportRoutes = require("./routes/reports");
+const auditRoutes = require("./routes/audit");
 
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
 app.use("/api/messages", messageRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/audit", auditRoutes);
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({
