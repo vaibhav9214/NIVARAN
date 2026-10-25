@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function DocketModal({ docket, onClose }) {
   if (!docket) return null;
@@ -87,9 +88,14 @@ export default function DocketModal({ docket, onClose }) {
 
         {/* Actions Footer */}
         <div className="pt-4 border-t border-surface-container-low flex items-center justify-between">
-          <span className="text-[11px] text-outline font-mono">
-            SHA-256 Verified
-          </span>
+          <Link
+            to={`/student/grievance-details/${docket.id.replace('#', '')}`}
+            onClick={onClose}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-label-md font-bold transition-colors cursor-pointer text-xs"
+          >
+            <span>Open Full Page</span>
+            <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+          </Link>
           <button
             onClick={onClose}
             className="px-5 py-2 rounded-lg font-label-md text-label-md font-semibold bg-primary-container text-on-primary hover:bg-primary transition-colors cursor-pointer"

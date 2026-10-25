@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
   const [formData, setFormData] = useState({
@@ -148,13 +149,21 @@ export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
               ></textarea>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col items-center gap-2">
               <button
                 type="submit"
                 className="w-full py-3 rounded-xl font-label-lg text-label-lg font-bold bg-primary-container text-on-primary hover:bg-primary transition-all shadow-sm cursor-pointer"
               >
                 Lodge Grievance &amp; Issue Token
               </button>
+              <Link
+                to="/student/raise-grievance"
+                onClick={handleReset}
+                className="text-xs font-semibold text-secondary hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>Or open full comprehensive grievance form</span>
+                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </Link>
             </div>
           </form>
         ) : (

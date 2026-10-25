@@ -156,6 +156,22 @@ export default function StitchNavbar({ activeTab = 'overview', onTabChange, onOp
               Open Student Dashboard
             </Link>
             <Link
+              to="/officer/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-2.5 rounded-lg font-label-lg text-label-lg text-secondary bg-surface-container-low hover:bg-surface-container text-center font-semibold flex items-center justify-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[18px]">shield_person</span>
+              <span>Department Officer Desk</span>
+            </Link>
+            <Link
+              to="/admin/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-2.5 rounded-lg font-label-lg text-label-lg text-primary bg-surface-container-low hover:bg-surface-container text-center font-semibold flex items-center justify-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[18px]">corporate_fare</span>
+              <span>Institution Admin Desk</span>
+            </Link>
+            <Link
               to="/student/dashboard"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full py-2.5 rounded-lg font-label-lg text-label-lg text-primary-container bg-surface-container-low hover:bg-surface-container text-center font-semibold"
