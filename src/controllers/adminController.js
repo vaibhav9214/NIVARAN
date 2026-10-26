@@ -212,6 +212,65 @@ exports.getDepartmentById = async (req, res) => {
  */
 
 // 5. Create Officer Account directly by Admin
+// Create Administrator Account (Protected: Admin Only)
+exports.createAdmin = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email, and password are required.'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long.'
+      });
+    }
+
+    const trimmedEmail = email.trim().toLowerCase();
+    const existing = await User.findOne({ email: trimmedEmail });
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        message: 'An account with this email already exists.'
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await User.create({
+      name: name.trim(),
+      email: trimmedEmail,
+      password: hashedPassword,
+      role: 'admin',
+      status: 'active',
+      tokenVersion: 0
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Administrator account created successfully.',
+      admin: {
+        id: admin._id.toString(),
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+        status: admin.status
+      }
+    });
+  } catch (error) {
+    console.error('Create admin error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error creating administrator account.'
+    });
+  }
+};
+
 exports.createOfficer = async (req, res) => {
   try {
     const {

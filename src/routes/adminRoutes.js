@@ -95,6 +95,9 @@ router.get('/departments', adminController.getDepartments);
 router.get('/departments/:id', adminController.getDepartmentById);
 router.patch('/departments/:id', adminController.updateDepartment);
 
+// --- Administrator Management ---
+router.post('/admins', adminController.createAdmin);
+
 // --- Officer Management ---
 router.post('/officers', adminController.createOfficer);
 router.get('/officers/pending', adminController.getPendingOfficers);

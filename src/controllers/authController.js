@@ -5,7 +5,6 @@ const User = require('../models/User');
 const RevokedToken = require('../models/RevokedToken');
 const { JWT_SECRET } = require('../middleware/auth');
 
-const VALID_ROLES = ['student', 'officer', 'admin'];
 const TOKEN_EXPIRY = process.env.JWT_EXPIRES_IN || '24h';
 
 // Helper: Sign JWT token containing user details, token version, and unique session ID (jti)
@@ -35,10 +34,15 @@ const cookieOptions = {
 /**
  * Register a new user
  * POST /api/auth/register
+ *
+ * SECURITY: Public registration must ALWAYS create a student account,
+ * strictly ignoring any role or privileged status supplied by the client.
+ * Admin and officer accounts can only be created or assigned through
+ * protected administrative processes.
  */
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role = 'student' } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -63,14 +67,6 @@ exports.register = async (req, res) => {
       });
     }
 
-    const assignedRole = role.toLowerCase();
-    if (!VALID_ROLES.includes(assignedRole)) {
-      return res.status(400).json({
-        success: false,
-        message: `Invalid role specified. Valid roles are: ${VALID_ROLES.join(', ')}`
-      });
-    }
-
     // Check if email already registered
     const existing = await User.findOne({ email: trimmedEmail });
     if (existing) {
@@ -84,10 +80,11 @@ exports.register = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Self-registered officers require admin approval; students are active
-    const initialStatus = assignedRole === 'officer' ? 'pending' : 'active';
+    // SECURITY: Public registration ALWAYS creates an active student account.
+    // Client-supplied role is strictly ignored to prevent privilege escalation.
+    const assignedRole = 'student';
+    const initialStatus = 'active';
 
-    // Create user in MongoDB
     const user = await User.create({
       name: name.trim(),
       email: trimmedEmail,
@@ -97,26 +94,12 @@ exports.register = async (req, res) => {
       tokenVersion: 0
     });
 
-    if (initialStatus === 'pending') {
-      return res.status(201).json({
-        success: true,
-        message: 'Officer registration submitted. Account is pending administrator approval.',
-        user: {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          status: user.status
-        }
-      });
-    }
-
     const token = generateToken(user);
     res.cookie('token', token, cookieOptions);
 
     return res.status(201).json({
       success: true,
-      message: 'User registered successfully.',
+      message: 'User registered successfully as student.',
       token,
       user: {
         id: user._id.toString(),

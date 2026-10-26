@@ -143,7 +143,8 @@ async function runTests() {
     });
     hostelOfficerUser = await User.findById(regRes.data.user.id);
   }
-  hostelOfficerUser.status = 'active';
+  hostelOfficerUser.role = 'officer';
+hostelOfficerUser.status = 'active';
   hostelOfficerUser.department = hostelDept._id;
   hostelOfficerUser.caseAccessConfig = { accessScope: 'department' };
   await hostelOfficerUser.save();
@@ -166,7 +167,8 @@ async function runTests() {
     });
     acadOfficerUser = await User.findById(regRes.data.user.id);
   }
-  acadOfficerUser.status = 'active';
+  acadOfficerUser.role = 'officer';
+acadOfficerUser.status = 'active';
   acadOfficerUser.department = acadDept._id;
   acadOfficerUser.caseAccessConfig = { accessScope: 'department' };
   await acadOfficerUser.save();

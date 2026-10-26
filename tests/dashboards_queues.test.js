@@ -126,7 +126,8 @@ async function runTests() {
     });
     hostelOfficerUser = await User.findById(regOfficer.data.user.id);
   }
-  hostelOfficerUser.status = 'active';
+  hostelOfficerUser.role = 'officer';
+hostelOfficerUser.status = 'active';
   hostelOfficerUser.department = hostelDept._id;
   await hostelOfficerUser.save();
 

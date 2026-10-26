@@ -93,6 +93,7 @@ async function runTests() {
   // 2. Registration
   const testStudentEmail = `test_student_${Date.now()}@nivaran.edu`;
   let studentToken = null;
+  let studentUser = null;
 
   await test('User registration creates user in MongoDB and returns JWT token', async () => {
     const res = await makeRequest('POST', '/api/auth/register', {
@@ -106,6 +107,26 @@ async function runTests() {
     assert(res.data.token, 'Token must be returned');
     assert.strictEqual(res.data.user.role, 'student');
     studentToken = res.data.token;
+    studentUser = res.data.user;
+  });
+
+  await test('SECURITY: Public registration strictly ignores client-supplied role: admin and creates student account', async () => {
+    const maliciousEmail = `attacker_${Date.now()}@test.edu`;
+    const res = await makeRequest('POST', '/api/auth/register', {
+      name: 'Attacker User',
+      email: maliciousEmail,
+      password: 'Password@123',
+      role: 'admin' // Attempting to self-register as admin
+    });
+    assert.strictEqual(res.status, 201);
+    assert.strictEqual(res.data.success, true);
+    assert.strictEqual(res.data.user.role, 'student', 'Role MUST be forced to student');
+    assert.strictEqual(res.data.user.status, 'active');
+
+    // Verify token issued is for student role
+    const attackerToken = res.data.token;
+    const adminApiCheck = await makeRequest('GET', '/api/admin/dashboard', null, attackerToken);
+    assert.strictEqual(adminApiCheck.status, 403, 'Attacker cannot access admin API');
   });
 
   await test('Duplicate registration is rejected with 409', async () => {
@@ -212,6 +233,56 @@ async function runTests() {
     const usersRes = await makeRequest('GET', '/api/admin/users', null, adminToken);
     assert.strictEqual(usersRes.status, 200);
     assert(Array.isArray(usersRes.data.users), 'Users list returned');
+  });
+
+  await test('SECURITY: Unauthenticated or student users cannot access POST /api/admin/admins', async () => {
+    const unauthRes = await makeRequest('POST', '/api/admin/admins', {
+      name: 'Hacked Admin',
+      email: 'hacked_admin@test.edu',
+      password: 'Password@123'
+    });
+    assert.strictEqual(unauthRes.status, 401, 'Must require authentication');
+
+    const studentAttemptRes = await makeRequest('POST', '/api/admin/admins', {
+      name: 'Hacked Admin',
+      email: 'hacked_admin@test.edu',
+      password: 'Password@123'
+    }, studentToken);
+    assert.strictEqual(studentAttemptRes.status, 403, 'Student must be rejected with 403 Forbidden');
+  });
+
+  await test('SECURITY: Administrator can create a new admin through protected administrative process', async () => {
+    const newAdminEmail = `sec_admin_${Date.now()}@nivaran.edu`;
+    const res = await makeRequest('POST', '/api/admin/admins', {
+      name: 'Second Admin',
+      email: newAdminEmail,
+      password: 'Admin@123'
+    }, adminToken);
+    assert.strictEqual(res.status, 201);
+    assert.strictEqual(res.data.success, true);
+    assert.strictEqual(res.data.admin.role, 'admin');
+
+    // Verify newly created admin can log in and access admin routes
+    const newAdminLogin = await makeRequest('POST', '/api/auth/login', {
+      email: newAdminEmail,
+      password: 'Admin@123'
+    });
+    assert.strictEqual(newAdminLogin.status, 200);
+    const newAdminCheck = await makeRequest('GET', '/api/admin/dashboard', null, newAdminLogin.data.token);
+    assert.strictEqual(newAdminCheck.status, 200);
+  });
+
+  await test('SECURITY: Administrator can assign admin role to an existing user through protected process', async () => {
+    const promoRes = await makeRequest('PATCH', `/api/admin/users/${studentUser.id}/role`, {
+      role: 'admin'
+    }, adminToken);
+    assert.strictEqual(promoRes.status, 200);
+    assert.strictEqual(promoRes.data.user.role, 'admin');
+
+    // Demote back to student to preserve test isolation
+    await makeRequest('PATCH', `/api/admin/users/${studentUser.id}/role`, {
+      role: 'student'
+    }, adminToken);
   });
 
   // 8. Security tampering test: Client modifying token payload (forgery)

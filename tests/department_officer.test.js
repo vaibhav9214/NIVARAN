@@ -155,17 +155,31 @@ async function runTests() {
   const selfOfficerEmail = `pending_officer_${Date.now()}@nivaran.edu`;
   let pendingOfficerId;
 
-  await test('Self-registered officer account is set to pending approval', async () => {
+  await test('Public registration strictly creates student account even if role: officer is supplied', async () => {
     const regRes = await makeRequest('POST', '/api/auth/register', {
-      name: 'Dr. Ramesh Kumar',
-      email: selfOfficerEmail,
+      name: 'Unauth Officer Attempt',
+      email: `unauth_off_${Date.now()}@nivaran.edu`,
       password: 'Password@123',
       role: 'officer'
     });
 
     assert.strictEqual(regRes.status, 201);
-    assert.strictEqual(regRes.data.user.status, 'pending');
-    pendingOfficerId = regRes.data.user.id;
+    assert.strictEqual(regRes.data.user.role, 'student', 'Public registration must ignore role and force student');
+    assert.strictEqual(regRes.data.user.status, 'active');
+  });
+
+  await test('Officer created with status: pending requires admin approval', async () => {
+    const createRes = await makeRequest('POST', '/api/admin/officers', {
+      name: 'Dr. Ramesh Kumar',
+      email: selfOfficerEmail,
+      password: 'Password@123',
+      department: createdDeptId,
+      status: 'pending'
+    }, adminToken);
+
+    assert.strictEqual(createRes.status, 201);
+    assert.strictEqual(createRes.data.officer.status, 'pending');
+    pendingOfficerId = createRes.data.officer.id;
   });
 
   await test('Pending officer cannot log in until approved', async () => {

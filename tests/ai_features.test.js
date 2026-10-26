@@ -114,7 +114,8 @@ async function runAiTests() {
       });
       officerUser = await User.findById(reg.data.user.id);
     }
-    officerUser.status = 'active';
+    officerUser.role = 'officer';
+officerUser.status = 'active';
     officerUser.department = testDept._id;
     officerUser.caseAccessConfig = { accessScope: 'all' };
     await officerUser.save();
