@@ -1,14 +1,18 @@
 const express = require('express');
+const http = require('http');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 require('dotenv').config();
 
 const { connectDB } = require('./config/db');
+const { initSocket, getIO } = require('./services/socketService');
 
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const officerRoutes = require('./routes/officerRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,14 +30,16 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'NIVARAN Auth & RBAC API Server',
+    message: 'NIVARAN Auth & RBAC API Server with Real-Time WebSockets',
     database: 'MongoDB',
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth',
       student: '/api/student',
       officer: '/api/officer',
-      admin: '/api/admin'
+      admin: '/api/admin',
+      messages: '/api/messages',
+      notifications: '/api/notifications'
     }
   });
 });
@@ -43,6 +49,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/officer', officerRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Catch-all for unknown API endpoints
 app.use('/api', (req, res) => {
@@ -69,13 +77,24 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Attach Socket.IO to HTTP server automatically on listen
+app.listen = function(...args) {
+  const server = http.createServer(app);
+  initSocket(server);
+  return server.listen(...args);
+};
+
+app.initSocket = initSocket;
+app.getIO = getIO;
+
 if (require.main === module) {
   connectDB().then(() => {
     app.listen(PORT, () => {
       console.log(`===============================================`);
-      console.log(`   NIVARAN Auth & RBAC Server is running`);
+      console.log(`   NIVARAN Real-Time Server is running`);
       console.log(`   Database: MongoDB`);
       console.log(`   Port: http://localhost:${PORT}`);
+      console.log(`   WebSockets: Active`);
       console.log(`===============================================`);
     });
   }).catch((err) => {
