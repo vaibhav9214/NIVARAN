@@ -54,6 +54,14 @@ app.use('/api', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
+  // Catch client parser errors and 4xx errors cleanly (e.g. malformed JSON)
+  if (err.status && err.status >= 400 && err.status < 500) {
+    return res.status(err.status).json({
+      success: false,
+      message: err.type === 'entity.parse.failed' ? 'Malformed JSON in request body.' : (err.message || 'Invalid request payload.')
+    });
+  }
+
   console.error('Unhandled server error:', err);
   res.status(500).json({
     success: false,
