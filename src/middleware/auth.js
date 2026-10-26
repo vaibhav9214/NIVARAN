@@ -3,7 +3,13 @@ const User = require('../models/User');
 const RevokedToken = require('../models/RevokedToken');
 require('dotenv').config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'default_secret_key_change_me';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error(
+    'FATAL ERROR: JWT_SECRET is missing from environment variables.'
+  );
+}
 
 /**
  * Middleware to authenticate requests using JWT tokens.
