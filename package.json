@@ -1,28 +1,36 @@
 {
-  "name": "nivaran-frontend",
-  "private": true,
+  "name": "nivaran",
   "version": "1.0.0",
-  "type": "module",
+  "description": "A website for Student College Complain",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "start": "node src/server.js",
+    "start:ai": "python -m uvicorn ai_service.main:app --port 8000 --host 0.0.0.0",
+    "dev": "node --watch src/server.js",
+    "test": "node tests/auth.test.js && node tests/department_officer.test.js && node tests/grievance_submission.test.js && node tests/grievance_lifecycle.test.js && node tests/dashboards_queues.test.js && node tests/ai_features.test.js && node tests/error_handling.test.js && node tests/websocket_realtime.test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaibhav9214/NIVARAN.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/vaibhav9214/NIVARAN/issues"
+  },
+  "homepage": "https://github.com/vaibhav9214/NIVARAN#readme",
   "dependencies": {
-    "clsx": "^2.1.1",
-    "lucide-react": "^1.16.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
-    "tailwind-merge": "^2.5.5"
-  },
-  "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17",
-    "vite": "^6.0.7"
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.3",
+    "multer": "^2.4.0",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4"
   }
 }
