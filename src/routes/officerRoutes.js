@@ -1,10 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const Grievance = require('../models/Grievance');
 const grievanceController = require('../controllers/grievanceController');
 const officerController = require('../controllers/officerController');
-const aiController = require('../controllers/aiController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { evaluateCaseAccess } = require('../middleware/caseAccess');
 
@@ -53,17 +51,6 @@ router.post('/verify-case-access', async (req, res) => {
     });
   }
 });
-
-// --- Step 8: AI Grievance Intelligence Features ---
-// 1. Get or Generate AI Insights (advisory-only)
-router.get('/complaints/:id/ai-insights', aiController.getOrGenerateAiInsights);
-router.post('/complaints/:id/ai-insights', aiController.getOrGenerateAiInsights);
-router.get('/grievances/:id/ai-insights', aiController.getOrGenerateAiInsights);
-router.post('/grievances/:id/ai-insights', aiController.getOrGenerateAiInsights);
-
-// 2. Human Officer Review of AI Suggestions (never silently changes status)
-router.patch('/complaints/:id/ai-review', aiController.reviewAiInsights);
-router.patch('/grievances/:id/ai-review', aiController.reviewAiInsights);
 
 // --- Grievance Lifecycle Actions (Officer / Admin) ---
 

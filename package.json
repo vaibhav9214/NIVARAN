@@ -6,8 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "start:ai": "python -m uvicorn ai_service.main:app --port 8000 --host 0.0.0.0",
+    "start:all": "concurrently -n \"NODE,AI\" -c \"blue,magenta\" \"npm start\" \"npm run start:ai\"",
     "dev": "node --watch src/server.js",
-    "test": "node tests/auth.test.js && node tests/department_officer.test.js && node tests/grievance_submission.test.js && node tests/grievance_lifecycle.test.js && node tests/dashboards_queues.test.js && node tests/ai_features.test.js && node tests/error_handling.test.js && node tests/websocket_realtime.test.js"
+    "test": "node tests/auth.test.js && node tests/department_officer.test.js && node tests/grievance_submission.test.js && node tests/grievance_lifecycle.test.js && node tests/dashboards_queues.test.js && node tests/error_handling.test.js && node tests/websocket_realtime.test.js"
   },
   "repository": {
     "type": "git",
@@ -32,5 +33,8 @@
     "multer": "^2.4.0",
     "socket.io": "^4.8.4",
     "socket.io-client": "^4.8.4"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
   }
 }
