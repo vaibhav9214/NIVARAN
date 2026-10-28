@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import StudentHeader from '../../components/student/StudentHeader';
 import GrievanceForm from '../../components/student/raise-grievance/GrievanceForm';
@@ -8,16 +9,18 @@ import { studentAPI } from '../../services/api';
 import { AlertCircle, Clock, Shield, Sparkles } from 'lucide-react';
 
 export default function RaiseGrievancePage() {
+  const location = useLocation();
+  const draft = location.state?.draft;
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
-    title: '',
+    title: draft?.title || '',
     category: '',
     department: '',
     priority: 'Medium',
-    description: '',
+    description: draft?.description || '',
     confirmedAccuracy: false,
   });
   const [files, setFiles] = useState([]);
