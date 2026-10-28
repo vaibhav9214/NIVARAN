@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
   const [formData, setFormData] = useState({
@@ -128,14 +128,14 @@ export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
               >
                 Continue to Secure Grievance Form
               </button>
-              <Link
-                to="/student/raise-grievance"
-                onClick={handleReset}
+              <button
+                type="button"
+                onClick={handleSubmit}
                 className="text-xs font-semibold text-secondary hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <span>Or open full comprehensive grievance form</span>
+                <span>Continue to full grievance form</span>
                 <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </Link>
+              </button>
             </div>
           </form>
 
