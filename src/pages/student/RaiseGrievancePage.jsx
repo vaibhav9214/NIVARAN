@@ -17,8 +17,8 @@ export default function RaiseGrievancePage() {
   // Form State
   const [formData, setFormData] = useState({
     title: draft?.title || '',
-    category: '',
-    department: '',
+    category: draft?.category || '',
+    department: draft?.department || '',
     priority: 'Medium',
     description: draft?.description || '',
     confirmedAccuracy: false,
