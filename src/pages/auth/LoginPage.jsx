@@ -15,7 +15,6 @@ export default function LoginPage() {
   const location = useLocation();
 
   const from = location.state?.from?.pathname || '/student/dashboard';
-  const draft = location.state?.from?.state?.draft || location.state?.draft;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +25,7 @@ export default function LoginPage() {
       const user = await login(email, password);
       if (user.role === 'admin') navigate('/admin/dashboard');
       else if (user.role === 'officer') navigate('/officer/dashboard');
-      else navigate(from === '/login' ? '/student/dashboard' : from, { state: draft ? { draft } : undefined });
+      else navigate(from === '/login' ? '/student/dashboard' : from);
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Login failed.');
     } finally {
