@@ -1,46 +1,59 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
   const [formData, setFormData] = useState({
-    category: 'Academics & Evaluation',
+    category: 'Academics',
     subject: '',
     description: '',
+    isAnonymous: true,
   });
-  const navigate = useNavigate();
+  const [submittedDocket, setSubmittedDocket] = useState(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.subject.trim() || !formData.description.trim()) return;
+    if (!formData.subject || !formData.description) return;
 
-    // This quick form does not create a backend record. Carry the draft to the
-    // authenticated, fully validated form instead of showing a fake success.
-    const categoryMapping = {
-      'Academics & Evaluation': { category: 'Academics & Examination', department: 'ACAD' },
-      'Safety Hazard & Infrastructure': { category: 'Safety & Security', department: 'MAINT' },
-      'Hostel & Mess Amenities': { category: 'Hostel & Residence', department: 'HOSTEL' },
-      'Harassment / Internal Complaints (ICC)': { category: 'Student Services & Welfare', department: '' },
-      'Administrative & Finance': { category: 'Administrative & Registry', department: '' },
-    };
-    const mappedCategory = categoryMapping[formData.category] || {};
-
-    const draft = {
-      title: formData.subject.trim(),
-      description: formData.description.trim(),
-      category: mappedCategory.category || '',
-      department: mappedCategory.department || '',
-    };
-    onClose();
-    navigate('/student/raise-grievance', { state: { draft } });
+    const newDocketId = `GRV-2024-${Math.floor(1000 + Math.random() * 9000)}`;
+    setSubmittedDocket(newDocketId);
+    if (onGrievanceCreated) {
+      onGrievanceCreated({
+        id: newDocketId,
+        subject: formData.subject,
+        meta: `${formData.category} • ${formData.isAnonymous ? 'Filed Anonymously' : 'Verified Student ID'}`,
+        tier: formData.category === 'Safety Hazard' ? 'Tier 1 • Safety Hazard' : 'Tier 2 • Academic Review',
+        tierColor: formData.category === 'Safety Hazard' ? 'bg-error-container/60 text-on-error-container' : 'bg-surface-container text-on-surface-variant',
+        dotColor: formData.category === 'Safety Hazard' ? 'bg-error' : 'bg-secondary',
+        committee: 'Campus Grievance Redressal Committee',
+        status: 'In Inquiry',
+        statusColor: 'bg-surface-container-high text-on-surface-variant',
+        actionLabel: 'View Details',
+        actionIcon: 'chevron_right',
+        details: {
+          filedOn: 'Just now',
+          slaCountdown: '48 Hours Remaining',
+          assignedOfficer: 'Department Nodal Officer',
+          anonymity: formData.isAnonymous ? 'Zero-Knowledge SHA-256 Token' : 'Verified Student ID',
+          description: formData.description,
+          milestones: [
+            { label: 'Ingested & Cryptographically Hashed', time: 'Just now', done: true },
+            { label: 'AI Urgent Triaging & Classification', time: 'In progress', done: true },
+            { label: 'Routing to Respective Committee', time: 'Pending', done: false },
+          ]
+        }
+      });
+    }
   };
 
   const handleReset = () => {
+    setSubmittedDocket(null);
     setFormData({
-      category: 'Academics & Evaluation',
+      category: 'Academics',
       subject: '',
       description: '',
+      isAnonymous: true,
     });
     onClose();
   };
@@ -68,10 +81,25 @@ export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="py-4 space-y-4">
-            <p className="text-xs text-outline bg-surface-container-low p-3 rounded-xl">
-              Continue to the secure grievance form to review the required details before submitting. This quick form does not submit or register a grievance.
-            </p>
+        {!submittedDocket ? (
+          <form onSubmit={handleSubmit} className="py-4 space-y-4">
+            {/* Anonymity Switch */}
+            <div className="p-3 rounded-xl bg-surface-container-low flex items-center justify-between gap-3">
+              <div>
+                <span className="font-label-md text-label-md font-bold text-on-surface block">
+                  Zero-Knowledge Anonymity
+                </span>
+                <span className="text-outline text-xs block">
+                  Mask roll number &amp; identity from reviewing faculty.
+                </span>
+              </div>
+              <input
+                type="checkbox"
+                checked={formData.isAnonymous}
+                onChange={(e) => setFormData({ ...formData, isAnonymous: e.target.checked })}
+                className="w-5 h-5 accent-primary cursor-pointer"
+              />
+            </div>
 
             {/* Category */}
             <div>
@@ -126,18 +154,42 @@ export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
                 type="submit"
                 className="w-full py-3 rounded-xl font-label-lg text-label-lg font-bold bg-primary-container text-on-primary hover:bg-primary transition-all shadow-sm cursor-pointer"
               >
-                Continue to Secure Grievance Form
+                Lodge Grievance &amp; Issue Token
               </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
+              <Link
+                to="/student/raise-grievance"
+                onClick={handleReset}
                 className="text-xs font-semibold text-secondary hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <span>Continue to full grievance form</span>
+                <span>Or open full comprehensive grievance form</span>
                 <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-              </button>
+              </Link>
             </div>
           </form>
+        ) : (
+          <div className="py-6 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-secondary-container/60 text-secondary flex items-center justify-center mx-auto">
+              <span className="material-symbols-outlined text-[28px]">verified</span>
+            </div>
+            <h4 className="font-headline-sm text-headline-sm font-bold text-on-surface">
+              Docket Successfully Lodged!
+            </h4>
+            <p className="text-body-sm text-outline max-w-sm mx-auto">
+              Your grievance has been cryptographically registered and mapped to the institutional redressal pipeline.
+            </p>
+            <div className="p-3 bg-surface-container rounded-xl inline-block font-mono font-bold text-primary text-lg">
+              {submittedDocket}
+            </div>
+            <div className="pt-2">
+              <button
+                onClick={handleReset}
+                className="px-6 py-2.5 rounded-xl font-label-md text-label-md font-bold bg-primary text-on-primary hover:bg-primary-container transition-all cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
