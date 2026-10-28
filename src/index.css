@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-forest: #174D38;
+  --color-primary: #237A57;
+  --color-secondary: #358765;
+  --color-soft-green: #E4F1E8;
+  --color-pale-green: #F0F7F1;
+
+  --color-white: #FFFFFF;
+  --color-cream: #FAF8F0;
+  --color-warm-cream: #F4F0E4;
+  --color-ivory: #FFFDF7;
+  --color-border: #E6E0D2;
+
+  --color-text: #20352A;
+  --color-text-secondary: #68766D;
+  --color-text-muted: #879188;
+
+  --color-success: #237A57;
+  --color-warning: #A96D16;
+  --color-error: #B83A3A;
+  --color-info: #326D9A;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-cream);
+    color: var(--color-text);
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  vertical-align: middle;
+}
+
+/* Glassmorphism & custom utility layers */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+}
