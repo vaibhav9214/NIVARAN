@@ -114,7 +114,7 @@ export default function IntelligenceDashboard({ onSelectDocket }) {
         <div>
           <div className="inline-flex items-center gap-2 font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold mb-2">
             <span className="w-2 h-2 rounded-full bg-secondary"></span>
-            Campus Oversight Console
+            Campus Oversight Console · Illustrative Demo Data
           </div>
           <h2 className="font-headline-xl text-headline-xl text-on-surface font-bold tracking-tight">
             Institutional Triaging &amp; Resolution Engine
@@ -372,16 +372,9 @@ export default function IntelligenceDashboard({ onSelectDocket }) {
         {/* Ledger Footer & Compliance Affirmation */}
         <div className="p-4 bg-surface-container-low/40 flex flex-col sm:flex-row items-center justify-between text-outline font-label-sm text-label-sm gap-2">
           <span>Displaying verified audit ledger dockets under Section 3(b) UGC Regulations</span>
-          <a
-            href="#audit-report"
-            onClick={(e) => {
-              e.preventDefault();
-              alert('NAAC Resolution Audit PDF: Generates cryptographic institution verification report.');
-            }}
-            className="text-primary hover:underline font-semibold"
-          >
-            Export NAAC Resolution Audit Report (PDF)
-          </a>
+          <span className="text-outline font-semibold" title="Report export is not implemented in this demo">
+            Audit report export unavailable in demo
+          </span>
         </div>
 
       </div>
