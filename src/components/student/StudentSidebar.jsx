@@ -15,14 +15,10 @@ export default function StudentSidebar({ isMobileOpen, onCloseMobile, activeNav 
   const mainNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'grid_view', path: '/student/dashboard' },
     { id: 'submit-grievance', label: 'Submit Grievance', icon: 'post_add', path: '/student/raise-grievance' },
-    { id: 'my-grievances', label: 'My Grievances', icon: 'assignment', badge: '12', badgeColor: 'bg-surface-container-lowest text-primary-container border border-outline-variant/40 font-bold', path: '/student/my-grievances' },
-    { id: 'notifications', label: 'Notifications', icon: 'notifications', badge: '3', badgeColor: 'bg-secondary text-on-secondary font-semibold', path: '#notifications' },
-    { id: 'profile-settings', label: 'Profile & Settings', icon: 'settings', path: '#profile' },
+    { id: 'my-grievances', label: 'My Grievances', icon: 'assignment', path: '/student/my-grievances' },
   ];
 
   const assistanceItems = [
-    { id: 'help-support', label: 'Help & Support', icon: 'help_center', path: '#help' },
-    { id: 'privacy-policy', label: 'Privacy Policy', icon: 'policy', path: '#privacy' },
     { id: 'landing-page', label: 'Exit to Platform Home', icon: 'logout', textClass: 'text-error hover:bg-error-container hover:text-on-error-container', path: '/' },
   ];
 
@@ -137,11 +133,8 @@ export default function StudentSidebar({ isMobileOpen, onCloseMobile, activeNav 
           </div>
         </div>
 
-        {/* Assistance & Version Footer */}
+        {/* Action & Version Footer */}
         <div className="p-space-md border-t border-outline-variant/30 flex flex-col gap-space-xs">
-          <span className="font-label-sm text-label-sm uppercase tracking-wider text-outline px-space-sm mb-space-xs">
-            Assistance
-          </span>
           <nav className="flex flex-col gap-space-xs">
             {assistanceItems.map((item) => {
               const isRouterLink = item.path.startsWith('/');

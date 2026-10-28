@@ -1,6 +1,14 @@
 import React from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function CtaBanner({ onBeginGrievance }) {
+  const { user } = useAuth();
+
+  // Hide grievance filing prompt completely from officers and administrators
+  if (user?.role === 'officer' || user?.role === 'admin') {
+    return null;
+  }
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 w-full" id="submit-portal">
       <div className="bg-primary rounded-3xl p-8 lg:p-14 text-on-primary flex flex-col lg:flex-row items-center justify-between gap-10 shadow-xl relative overflow-hidden">

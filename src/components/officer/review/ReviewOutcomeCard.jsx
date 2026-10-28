@@ -86,7 +86,7 @@ export default function ReviewOutcomeCard({
               Accept for Investigation
             </span>
             <span className="font-body-sm text-body-sm text-outline">
-              Advances to 'In Progress', assigns field technician
+              Advances to 'In Progress', assigns field personnel
             </span>
           </div>
         </label>
@@ -209,9 +209,9 @@ export default function ReviewOutcomeCard({
               onChange={(e) => onTechnicianChange(e.target.value)}
               className="w-full p-2.5 rounded-lg bg-surface text-on-surface font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:outline-none border border-outline-variant/30"
             >
-              <option value="rajesh">Rajesh Kumar (Senior Lab Tech • Instrumentation)</option>
-              <option value="vikram">Vikram Rathore (Central Workshop Machinist)</option>
-              <option value="neha">Neha Deshmukh (Electronics Repair Specialist)</option>
+              <option value="lead_tech">Lead Field Technician (Infrastructure)</option>
+              <option value="maintenance_specialist">Maintenance Operations Specialist</option>
+              <option value="duty_engineer">Duty Facility Engineer</option>
             </select>
           </div>
         )}
@@ -227,10 +227,12 @@ export default function ReviewOutcomeCard({
               onChange={(e) => onForwardDeptChange(e.target.value)}
               className="w-full p-2.5 rounded-lg bg-surface text-on-surface font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:outline-none border border-outline-variant/30"
             >
-              <option value="physics_hod">Physics Department HOD Office</option>
-              <option value="workshop">Central University Workshop</option>
-              <option value="procurement">Central Stores &amp; Procurement</option>
-              <option value="academic">Academic Affairs Committee</option>
+              <option value="HOSTEL">Hostel &amp; Infrastructure</option>
+              <option value="ACAD">Academics &amp; Examination</option>
+              <option value="MESS">Mess &amp; Cafeteria</option>
+              <option value="MAINT">Maintenance &amp; Works</option>
+              <option value="CS_AI">Computer Science &amp; AI</option>
+              <option value="LIB">Library &amp; Digital Services</option>
             </select>
           </div>
         )}

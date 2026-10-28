@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Grievance = require('../models/Grievance');
+const Department = require('../models/Department');
 const grievanceController = require('../controllers/grievanceController');
 const officerController = require('../controllers/officerController');
 const aiController = require('../controllers/aiController');
@@ -10,6 +11,19 @@ const { evaluateCaseAccess } = require('../middleware/caseAccess');
 
 // All officer routes require valid auth AND 'officer' or 'admin' role
 router.use(authenticateToken, requireRole('officer', 'admin'));
+
+// Retrieve active departments
+router.get('/departments', async (req, res) => {
+  try {
+    const departments = await Department.find({ isActive: { $ne: false } })
+      .select('name code description')
+      .sort({ name: 1 });
+    return res.status(200).json({ success: true, departments });
+  } catch (error) {
+    console.error('Officer get departments error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to fetch departments.' });
+  }
+});
 
 // Page 08: Officer Dashboard (Status counts, workload charts, SLA metrics)
 router.get('/dashboard', officerController.getOfficerDashboard);

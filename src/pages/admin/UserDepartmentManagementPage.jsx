@@ -501,7 +501,7 @@ export default function UserDepartmentManagementPage() {
                   required
                   value={officerForm.name}
                   onChange={(e) => setOfficerForm((p) => ({ ...p, name: e.target.value }))}
-                  placeholder="e.g. Dr. Rajesh Verma"
+                  placeholder="e.g. Officer Name"
                   className="w-full p-2.5 text-xs rounded-xl border border-nivaran-border bg-nivaran-ivory text-nivaran-text focus:outline-none"
                 />
               </div>

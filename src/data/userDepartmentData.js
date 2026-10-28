@@ -42,8 +42,8 @@ export const initialUsers = [
   },
   {
     id: 'OFF-0042',
-    name: 'Ananya Sharma',
-    email: 'ananya.sharma@example.edu',
+    name: 'Grievance Officer',
+    email: 'officer@example.edu',
     role: 'officer',
     roleLabel: 'Officer',
     roleIcon: 'shield_person',
@@ -137,8 +137,8 @@ export const initialUsers = [
   },
   {
     id: 'ADM-0001',
-    name: 'Rahul Verma',
-    email: 'rahul.verma@example.edu',
+    name: 'System Administrator',
+    email: 'admin@example.edu',
     role: 'administrator',
     roleLabel: 'Administrator',
     roleIcon: 'shield',
@@ -204,7 +204,7 @@ export const initialDepartments = [
     officersCount: 12,
     openCasesCount: 24,
     status: 'Active Unit',
-    leadOfficer: 'Ananya Sharma',
+    leadOfficer: 'Grievance Officer',
     isHeavy: false,
   },
   {

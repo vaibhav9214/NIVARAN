@@ -1,6 +1,7 @@
 const Grievance = require('../models/Grievance');
 const Department = require('../models/Department');
 const AuditEvent = require('../models/AuditEvent');
+const { notifyStatusChanged } = require('./notificationService');
 
 const GRIEVANCE_STATUSES = {
   SUBMITTED: 'Submitted',
@@ -388,6 +389,11 @@ async function executeTransition({ grievance, targetStatus, user, options = {} }
   });
 
   await grievance.save();
+
+  // Trigger Notification to Student regarding status transition
+  notifyStatusChanged(grievance, currentStatus, targetStatus, remarks).catch((err) => {
+    console.warn('Could not dispatch status change notification:', err.message);
+  });
 
   // 4. Record Audit Event
   const auditEvent = await recordAuditEvent({

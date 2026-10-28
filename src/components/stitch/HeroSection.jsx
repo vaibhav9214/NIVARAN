@@ -1,6 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function HeroSection({ onSubmitGrievance, onTrackDocket }) {
+  const { user } = useAuth();
+  const isOfficer = user?.role === 'officer';
+  const isAdmin = user?.role === 'admin';
+
   return (
     <section id="overview" className="relative w-full overflow-hidden bg-gradient-to-b from-surface-container-low/50 via-surface to-surface">
       {/* Background Architectural Grid Lines & Orbs */}
@@ -38,16 +44,40 @@ export default function HeroSection({ onSubmitGrievance, onTrackDocket }) {
 
         {/* Action Button Group */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto mb-16">
-          <button
-            onClick={onSubmitGrievance}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl font-label-lg text-label-lg bg-primary-container text-on-primary hover:bg-primary shadow-sm hover:shadow-md transition-all group cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[20px]">add_circle</span>
-            <span>Submit a Grievance</span>
-            <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
-              arrow_forward
-            </span>
-          </button>
+          {isOfficer ? (
+            <Link
+              to="/officer/dashboard"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl font-label-lg text-label-lg bg-primary-container text-on-primary hover:bg-primary shadow-sm hover:shadow-md transition-all group cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[20px]">badge</span>
+              <span>Open Officer Workspace</span>
+              <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
+                arrow_forward
+              </span>
+            </Link>
+          ) : isAdmin ? (
+            <Link
+              to="/admin/dashboard"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl font-label-lg text-label-lg bg-primary-container text-on-primary hover:bg-primary shadow-sm hover:shadow-md transition-all group cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[20px]">shield</span>
+              <span>Open Admin Dashboard</span>
+              <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
+                arrow_forward
+              </span>
+            </Link>
+          ) : (
+            <button
+              onClick={onSubmitGrievance}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-xl font-label-lg text-label-lg bg-primary-container text-on-primary hover:bg-primary shadow-sm hover:shadow-md transition-all group cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[20px]">add_circle</span>
+              <span>Submit a Grievance</span>
+              <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
+                arrow_forward
+              </span>
+            </button>
+          )}
           
           <button
             onClick={onTrackDocket}

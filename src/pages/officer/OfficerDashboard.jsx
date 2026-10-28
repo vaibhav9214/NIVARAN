@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import OfficerSidebar from '../../components/officer/OfficerSidebar';
 import OfficerHeader from '../../components/officer/OfficerHeader';
+import CaseAnalyticsCharts from '../../components/officer/CaseAnalyticsCharts';
 import { officerAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -23,11 +24,29 @@ export default function OfficerDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [headerSearch, setHeaderSearch] = useState('');
+
+  const activeNav = location.hash === '#reports'
+    ? 'reports-and-insights'
+    : location.hash === '#queue'
+    ? 'review-queue'
+    : location.hash === '#resolved'
+    ? 'resolved-cases'
+    : 'overview';
+
+  useEffect(() => {
+    if (location.hash === '#reports') {
+      setTimeout(() => {
+        const el = document.getElementById('reports');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [location.hash, loading]);
 
   const fetchDashboard = async () => {
     setLoading(true);
@@ -59,22 +78,19 @@ export default function OfficerDashboard() {
     escalated: 0,
   };
 
-  const sla = data?.slaMetrics || {
-    complianceRate: 100,
-    onTrackCount: 0,
-    atRiskCount: 0,
-    breachedCount: 0,
-  };
+  const slaComplianceDisplay = data?.workloadCharts?.slaComplianceRate 
+    ? data.workloadCharts.slaComplianceRate 
+    : (data?.slaMetrics?.complianceRate !== undefined ? `${data.slaMetrics.complianceRate}%` : '100%');
 
-  const attentionRequired = data?.attentionRequired || [];
-  const recentActivity = data?.recentActivity || [];
+  const attentionRequired = data?.urgentActionQueue || data?.attentionRequired || [];
+  const recentGrievancesList = data?.recentGrievances || data?.recentActivity || [];
 
   return (
     <div className="w-full min-h-screen bg-nivaran-cream font-sans text-nivaran-text flex selection:bg-nivaran-softGreen selection:text-nivaran-forest">
       <OfficerSidebar
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        activeNav="overview"
+        activeNav={activeNav}
       />
 
       <div className="flex-1 w-full lg:pl-64 flex flex-col min-h-screen">
@@ -153,7 +169,7 @@ export default function OfficerDashboard() {
               <span className="text-xs font-semibold text-nivaran-textSecondary">SLA Compliance</span>
               <div className="mt-3 flex items-baseline justify-between">
                 <span className="text-2xl sm:text-3xl font-bold font-manrope text-nivaran-success">
-                  {loading ? '...' : `${sla.complianceRate}%`}
+                  {loading ? '...' : slaComplianceDisplay}
                 </span>
                 <span className="text-xs text-nivaran-success font-semibold">Target &gt;95%</span>
               </div>
@@ -169,6 +185,13 @@ export default function OfficerDashboard() {
               </div>
             </div>
           </div>
+
+          {/* Interactive Case Analytics & Category Distribution Graphs */}
+          <CaseAnalyticsCharts
+            workloadCharts={data?.workloadCharts}
+            statusCounts={data?.statusCounts}
+            totalCases={counts.total}
+          />
 
           {/* Main Grid: Urgent Attention & Recent Audit Trail */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -269,23 +292,30 @@ export default function OfficerDashboard() {
                 <h3 className="text-xs font-bold text-nivaran-forest uppercase tracking-wider">
                   Recent Department Activity
                 </h3>
-                {recentActivity.length === 0 ? (
+                {recentGrievancesList.length === 0 ? (
                   <p className="text-xs text-nivaran-textMuted py-4 text-center">
-                    No recent audit events logged today.
+                    No recent department grievances on record.
                   </p>
                 ) : (
                   <div className="space-y-2.5">
-                    {recentActivity.slice(0, 5).map((act, i) => (
+                    {recentGrievancesList.slice(0, 5).map((item, i) => (
                       <div key={i} className="text-xs pb-2 border-b border-nivaran-divider last:border-0 last:pb-0">
-                        <span className="font-semibold text-nivaran-text">{act.action}</span>
-                        <span className="text-[10px] text-nivaran-textMuted ml-1.5 font-mono">
-                          {act.ticketId}
-                        </span>
-                        {act.remarks && (
-                          <p className="text-[11px] text-nivaran-textSecondary mt-0.5 italic">
-                            "{act.remarks}"
-                          </p>
-                        )}
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-nivaran-text truncate max-w-[170px]">
+                            {item.title || item.action}
+                          </span>
+                          <span className="text-[10px] text-nivaran-primary font-mono font-bold">
+                            {item.ticketId}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-nivaran-softGreen text-nivaran-forest font-medium">
+                            {item.status || 'Active'}
+                          </span>
+                          <span className="text-[10px] text-nivaran-textMuted">
+                            {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Recently'}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>

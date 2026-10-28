@@ -8,6 +8,7 @@ const { generateUniqueTicketId } = require('../utils/ticketGenerator');
 const { executeTransition, recordAuditEvent } = require('../services/lifecycleService');
 const { evaluateCaseAccess } = require('../middleware/caseAccess');
 const { calculateSlaDeadline, computeSlaMetrics } = require('../utils/slaCalculator');
+const { notifyGrievanceSubmitted } = require('../services/notificationService');
 
 /**
  * Helper to remove uploaded files if validation fails
@@ -180,6 +181,11 @@ exports.submitGrievance = async (req, res) => {
         slaDeadline: grievance.slaDeadline,
         attachmentCount: grievance.attachments.length
       }
+    });
+
+    // Notify student regarding grievance submission
+    notifyGrievanceSubmitted(grievance, req.user.id).catch((err) => {
+      console.warn('Could not dispatch submission notification:', err.message);
     });
 
     // 10. Display Submission Confirmation

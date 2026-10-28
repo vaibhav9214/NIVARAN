@@ -17,13 +17,13 @@ export const ASSIGNED_GRIEVANCES = [
     status: 'In Progress',
     statusClass: 'bg-surface-container text-primary font-label-sm text-label-sm font-semibold',
     lastUpdated: '20 Oct, 04:15 PM',
-    student: 'Aditya Verma',
+    student: 'Student Complainant',
     roll: '2023-CS-042 • 3rd Year B.Tech',
     studentInitials: 'AV',
     previewDesc:
       '"Repeated evening connection throttling in Hostel Block B after 20:00 hrs. Prevents access to university research journals and proctored coursework."',
     previewSla: 'Overdue by 2 days (48 hrs)',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'IT Infrastructure',
     latestNote:
       '"Network switch reboot scheduled with campus telecommunications crew for Hostel Block B switch-rack 4."',
@@ -47,13 +47,13 @@ export const ASSIGNED_GRIEVANCES = [
     status: 'Awaiting Review',
     statusClass: 'bg-surface-container-high text-on-surface font-label-sm text-label-sm font-semibold',
     lastUpdated: '19 Oct, 11:30 AM',
-    student: 'Rahul Sengupta',
+    student: 'Student Complainant',
     roll: '2022-PH-018 • MSc Physics',
     studentInitials: 'RS',
     previewDesc:
       '"Physics Lab 2 oscilloscope & spectrometer failure during practical examinations. Calibration certificate expired."',
     previewSla: 'Due in 6 hours',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'Facilities',
     latestNote:
       '"Work order issued to Central Workshop for clamp fabrication and vendor re-flash scheduled for Bench 4."',
@@ -83,7 +83,7 @@ export const ASSIGNED_GRIEVANCES = [
     previewDesc:
       '"SSO Token expiration loop on macOS Safari causing mid-term assignment upload halts for 40+ engineering candidates."',
     previewSla: 'Overdue by 4 days',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'IT & Technical',
     latestNote:
       '"SSO Token caching policy under review with central identity provider team."',
@@ -113,7 +113,7 @@ export const ASSIGNED_GRIEVANCES = [
     previewDesc:
       '"LH-201 HDMI audio sync failure during hybrid seminar lectures. Audio cuts out intermittently every 8 minutes."',
     previewSla: 'Due in 1 day',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'Facilities',
     latestNote:
       '"Technician dispatched to replace optical HDMI repeater unit."',
@@ -143,7 +143,7 @@ export const ASSIGNED_GRIEVANCES = [
     previewDesc:
       '"Post-doc researcher eduroam cert configuration for high-throughput cluster computation nodes."',
     previewSla: 'Due in 2 days',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'IT & Technical',
     latestNote:
       '"Certificate generation instructions emailed to researcher; waiting for client MAC address."',
@@ -173,7 +173,7 @@ export const ASSIGNED_GRIEVANCES = [
     previewDesc:
       '"Grade card decryption key error for Batch 2024 Computer Science cohort during transcript verification."',
     previewSla: 'Due in 3 days',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'IT & Technical',
     latestNote:
       '"Cryptographic key re-issued on exam server node."',
@@ -203,7 +203,7 @@ export const ASSIGNED_GRIEVANCES = [
     previewDesc:
       '"Off-campus researchers unable to authenticate through Shibboleth proxy to access peer-reviewed journals during thesis submission week."',
     previewSla: 'Overdue by 1 day',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'IT Infrastructure',
     latestNote:
       '"Shibboleth IdP federation certificate renewed; restarting daemon on auth-02."',
@@ -233,7 +233,7 @@ export const ASSIGNED_GRIEVANCES = [
     previewDesc:
       '"Biometric gateway at MAC-C records timestamp 4 hours behind system clock, resulting in automated attendance penalty emails."',
     previewSla: 'Due in 4 days',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'Facilities',
     latestNote:
       '"NTP time synchronization script deployed; verifying clock logs with registrar desk."',
@@ -263,7 +263,7 @@ export const ASSIGNED_GRIEVANCES = [
     previewDesc:
       '"NFC terminal timeouts in Dining Hall 2 cause 30-minute line delays for breakfast and dinner meal token verifications."',
     previewSla: 'Due in 5 days',
-    previewOfficer: 'Ananya Sharma (You)',
+    previewOfficer: 'Officer (You)',
     previewCategory: 'IT & Technical',
     latestNote:
       '"POS firmware updated to version 3.2.1; pending field test at evening mess."',

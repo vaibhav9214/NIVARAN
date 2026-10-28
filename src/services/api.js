@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Base API configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// Base API configuration (uses Vite proxy by default for flawless same-origin requests in Brave/Chrome)
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -51,6 +51,7 @@ export const authAPI = {
 // Student API
 export const studentAPI = {
   getDashboard: () => apiClient.get('/api/student/dashboard'),
+  getDepartments: () => apiClient.get('/api/student/departments'),
   aiAssist: (data) => apiClient.post('/api/student/ai/assist', data),
   submitGrievance: (formData) =>
     apiClient.post('/api/student/complaints', formData, {
@@ -73,6 +74,7 @@ export const studentAPI = {
 // Officer API
 export const officerAPI = {
   getDashboard: () => apiClient.get('/api/officer/dashboard'),
+  getDepartments: () => apiClient.get('/api/officer/departments'),
   getAssignedComplaints: (params) => apiClient.get('/api/officer/assigned-complaints', { params }),
   verifyCaseAccess: (data) => apiClient.post('/api/officer/verify-case-access', data),
   getAiInsights: (identifier, refresh = false) =>
@@ -132,4 +134,3 @@ export const notificationAPI = {
 };
 
 export default apiClient;
-

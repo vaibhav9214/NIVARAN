@@ -24,31 +24,10 @@ export default function StitchFooter() {
             UGC Redressal Gazette 2023
           </span>
           <span>•</span>
-          <a
-            href="#ombudsman-portal"
-            onClick={(e) => {
-              e.preventDefault();
-              alert('Ombudsman Appeals Registry: Governed under Section 5(1) Academic Regulations.');
-            }}
-            className="hover:text-primary transition-colors"
-          >
-            Ombudsman Registry
-          </a>
-          <span>•</span>
-          <a
-            href="#privacy-charter"
-            onClick={(e) => {
-              e.preventDefault();
-              alert('Zero-Knowledge Student Privacy Charter: Roll numbers are cryptographically salted.');
-            }}
-            className="hover:text-primary transition-colors"
-          >
-            Zero-Knowledge Charter
-          </a>
+          <span>Charter of Redressal</span>
           <span>•</span>
           <span>Helpline: <strong>1800-11-2026</strong></span>
         </div>
-
       </div>
     </footer>
   );

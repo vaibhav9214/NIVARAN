@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function OfficerHeader({
   onToggleSidebar,
@@ -9,6 +10,21 @@ export default function OfficerHeader({
   breadcrumbs,
 }) {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const officerName = user?.name || 'Grievance Officer';
+  const officerEmail = user?.email || 'officer@nivaran.edu';
+  const departmentName = user?.department?.name || (typeof user?.department === 'string' ? user.department : 'Department Officer');
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (e) {
+      navigate('/login');
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 lg:left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-4 sm:px-space-lg border-b border-outline-variant/30 transition-all">
@@ -46,7 +62,7 @@ export default function OfficerHeader({
         )}
 
         <span className="hidden md:inline-flex items-center px-space-sm py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-primary font-semibold">
-          IT Services • Authorized Officer
+          {departmentName}
         </span>
       </div>
 
@@ -65,19 +81,8 @@ export default function OfficerHeader({
         </kbd>
       </div>
 
-      {/* Right: Notifications & Profile */}
+      {/* Right: User Profile */}
       <div className="flex items-center gap-2 sm:gap-space-md">
-        <button
-          onClick={() => onTriggerToast && onTriggerToast('3 critical notifications awaiting triage', 'notifications')}
-          className="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
-          type="button"
-          title="Notifications"
-        >
-          <span className="material-symbols-outlined text-[22px]">notifications</span>
-          <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary font-label-sm text-label-sm text-on-primary flex items-center justify-center font-bold">
-            3
-          </span>
-        </button>
 
         <div className="relative">
           <div
@@ -89,10 +94,10 @@ export default function OfficerHeader({
             </div>
             <div className="hidden sm:flex flex-col text-left">
               <span className="font-label-md text-label-md text-on-surface leading-tight font-bold">
-                Ananya Sharma
+                {officerName}
               </span>
               <span className="font-label-sm text-label-sm text-outline leading-tight">
-                Department Officer
+                {departmentName}
               </span>
             </div>
             <span className="material-symbols-outlined text-outline text-[18px]">expand_more</span>
@@ -101,8 +106,8 @@ export default function OfficerHeader({
           {profileDropdownOpen && (
             <div className="absolute right-0 mt-2 w-56 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xl py-2 z-50">
               <div className="px-4 py-2 border-b border-outline-variant/20">
-                <p className="text-xs font-bold text-on-surface">Ananya Sharma</p>
-                <p className="text-[11px] text-outline">ananya.sharma@iitd.ac.in</p>
+                <p className="text-xs font-bold text-on-surface">{officerName}</p>
+                <p className="text-[11px] text-outline truncate">{officerEmail}</p>
               </div>
               <Link
                 to="/officer/dashboard"
@@ -110,33 +115,25 @@ export default function OfficerHeader({
                 className="flex items-center gap-2 px-4 py-2 text-xs text-on-surface hover:bg-surface-container transition-colors"
               >
                 <span className="material-symbols-outlined text-[16px] text-outline">badge</span>
-                <span>Officer Profile</span>
+                <span>Officer Dashboard</span>
               </Link>
               <Link
-                to="/student/dashboard"
+                to="/officer/case-queue"
                 onClick={() => setProfileDropdownOpen(false)}
                 className="flex items-center gap-2 px-4 py-2 text-xs text-on-surface hover:bg-surface-container transition-colors"
               >
-                <span className="material-symbols-outlined text-[16px] text-outline">school</span>
-                <span>Switch to Student View</span>
-              </Link>
-              <Link
-                to="/admin/dashboard"
-                onClick={() => setProfileDropdownOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-xs text-on-surface hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px] text-outline">corporate_fare</span>
-                <span>Switch to Admin Desk</span>
+                <span className="material-symbols-outlined text-[16px] text-outline">folder_open</span>
+                <span>Assigned Cases</span>
               </Link>
               <div className="border-t border-outline-variant/20 mt-1 pt-1">
-                <Link
-                  to="/"
-                  onClick={() => setProfileDropdownOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-xs text-error hover:bg-error-container/20 transition-colors"
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full text-left flex items-center gap-2 px-4 py-2 text-xs text-error hover:bg-error-container/20 transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[16px]">logout</span>
-                  <span>Exit to Landing Page</span>
-                </Link>
+                  <span>Sign Out</span>
+                </button>
               </div>
             </div>
           )}

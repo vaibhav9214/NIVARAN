@@ -53,17 +53,11 @@ export default function TelemetryWidget() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-outline-variant/20 pb-space-xs">
         <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-secondary text-[20px]">notifications_active</span>
+          <span className="material-symbols-outlined text-secondary text-[20px]">timeline</span>
           <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
             Redressal Telemetry
           </h3>
         </div>
-        <button
-          onClick={() => alert('All notifications marked as read.')}
-          className="font-label-sm text-label-sm text-secondary hover:text-primary font-semibold transition-colors cursor-pointer"
-        >
-          Mark all read
-        </button>
       </div>
 
       {/* Timeline items with vertical connector */}

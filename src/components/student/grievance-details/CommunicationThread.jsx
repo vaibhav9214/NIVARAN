@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function CommunicationThread({
   initialMessages = [],
@@ -8,25 +9,49 @@ export default function CommunicationThread({
   const [messages, setMessages] = useState(initialMessages);
   const [replyText, setReplyText] = useState('');
 
+  const { user } = useAuth();
+
+  const studentName = user?.name || 'Student';
+
+  const studentInitials = studentName
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'ST';
+
+  const getOfficerInitials = (name) => {
+    return (name || officerName)
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || 'OF';
+  };
+
   const handleSend = (e) => {
     e.preventDefault();
     if (!replyText.trim()) {
-      onTriggerToast('Please type a message before submitting.', 'error');
+      if (onTriggerToast) onTriggerToast('Please type a message before submitting.', 'error');
       return;
     }
 
     const newMessage = {
       id: Date.now(),
       sender: 'scholar',
-      name: 'Aditya Verma (You)',
-      initials: 'AV',
+      name: `${studentName} (You)`,
+      initials: studentInitials,
       timestamp: 'Just now',
       text: replyText.trim(),
     };
 
     setMessages((prev) => [...prev, newMessage]);
     setReplyText('');
-    onTriggerToast(`Response delivered securely to ${officerName}.`, 'send');
+    if (onTriggerToast) onTriggerToast(`Response delivered securely to ${officerName}.`, 'send');
   };
 
   return (
@@ -52,7 +77,7 @@ export default function CommunicationThread({
       {/* Message History Thread */}
       <div className="space-y-4" id="chat-messages-container">
         {messages.map((msg) => {
-          const isScholar = msg.sender === 'scholar';
+          const isScholar = msg.sender === 'scholar' || msg.sender === 'student';
 
           if (isScholar) {
             return (
@@ -63,7 +88,7 @@ export default function CommunicationThread({
                       {msg.timestamp}
                     </span>
                     <span className="font-label-md text-label-md font-bold text-primary-container">
-                      {msg.name}
+                      {msg.name || studentName}
                     </span>
                   </div>
                   <div className="bg-primary-container text-on-primary p-4 rounded-xl rounded-tr-none font-body-sm text-body-sm leading-relaxed">
@@ -71,7 +96,7 @@ export default function CommunicationThread({
                   </div>
                 </div>
                 <div className="w-9 h-9 rounded-full bg-surface-container-high text-primary-container flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-                  {msg.initials || 'AV'}
+                  {msg.initials || studentInitials}
                 </div>
               </div>
             );
@@ -80,12 +105,12 @@ export default function CommunicationThread({
           return (
             <div key={msg.id} className="flex items-start gap-3.5">
               <div className="w-9 h-9 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-                {msg.initials || 'OFF'}
+                {msg.initials || getOfficerInitials(msg.name)}
               </div>
               <div className="flex flex-col gap-1 max-w-2xl">
                 <div className="flex items-center gap-2">
                   <span className="font-label-md text-label-md font-bold text-on-surface">
-                    {msg.name}
+                    {msg.name || officerName}
                   </span>
                   <span className="font-label-sm text-[11px] text-outline">
                     {msg.timestamp}
@@ -128,7 +153,7 @@ export default function CommunicationThread({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => onTriggerToast('Evidentiary attachment dialog opened', 'attach_file')}
+              onClick={() => onTriggerToast && onTriggerToast('Evidentiary attachment dialog opened', 'attach_file')}
               className="p-2 rounded-lg text-outline hover:text-primary-container hover:bg-surface-container transition-all flex items-center gap-1.5 font-label-md text-xs font-semibold cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">attach_file</span>

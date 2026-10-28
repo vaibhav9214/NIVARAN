@@ -12,10 +12,10 @@ const { evaluateCaseAccess } = require('../middleware/caseAccess');
 exports.getOfficerDashboard = async (req, res) => {
   try {
     const officer = await User.findById(req.user.id).populate('department', 'name code');
-    const deptId = officer ? officer.department : null;
+    const deptId = officer && officer.department ? (officer.department._id || officer.department) : null;
 
     // Base filter according to officer's department/scope
-    const filter = deptId ? { department: deptId } : {};
+    const filter = deptId ? { department: new mongoose.Types.ObjectId(deptId.toString()) } : {};
 
     // 1. Status Counts
     const [

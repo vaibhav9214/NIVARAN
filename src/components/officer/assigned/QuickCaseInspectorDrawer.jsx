@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function QuickCaseInspectorDrawer({
   caseItem,
@@ -8,10 +9,13 @@ export default function QuickCaseInspectorDrawer({
   onOpenReassign,
 }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   if (!caseItem) return null;
 
   const isOverdue = caseItem.slaStatus === 'overdue' || caseItem.status === 'Overdue';
+  const officerName = caseItem.assignedOfficer?.name || user?.name || 'Assigned Officer';
+  const departmentName = user?.department?.name || (typeof caseItem.department === 'string' ? caseItem.department : caseItem.department?.name) || 'Department Desk';
 
   return (
     <div className="lg:col-span-4 xl:col-span-4 transition-all duration-300 animate-fadeIn">
@@ -26,7 +30,7 @@ export default function QuickCaseInspectorDrawer({
               <span className="font-headline-sm text-headline-sm text-primary font-bold">
                 #{caseItem.ticketId}
               </span>
-              <span className={`px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold ${caseItem.statusClass}`}>
+              <span className={`px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold ${caseItem.statusClass || ''}`}>
                 {caseItem.status}
               </span>
             </div>
@@ -47,7 +51,7 @@ export default function QuickCaseInspectorDrawer({
             {caseItem.title}
           </h4>
           <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-relaxed">
-            {caseItem.previewDesc || caseItem.summary}
+            {caseItem.previewDesc || caseItem.summary || caseItem.description}
           </p>
         </div>
 
@@ -59,10 +63,10 @@ export default function QuickCaseInspectorDrawer({
             </div>
             <div className="flex flex-col min-w-0">
               <span className="font-label-md text-label-md text-on-surface font-bold truncate">
-                {caseItem.student}
+                {caseItem.student?.name || caseItem.student || 'Student Complainant'}
               </span>
               <span className="font-label-sm text-label-sm text-outline truncate">
-                {caseItem.roll}
+                {caseItem.student?.email || caseItem.roll || 'Verified Student'}
               </span>
             </div>
           </div>
@@ -94,7 +98,7 @@ export default function QuickCaseInspectorDrawer({
                 {isOverdue ? 'Statutory SLA Breach' : 'Statutory Redressal Window'}
               </span>
               <span className="font-label-md text-label-md text-on-surface font-semibold">
-                {caseItem.previewSla || caseItem.deadline}
+                {caseItem.previewSla || caseItem.deadline || 'Standard institutional turnaround'}
               </span>
             </div>
           </div>
@@ -119,26 +123,26 @@ export default function QuickCaseInspectorDrawer({
         <div className="grid grid-cols-2 gap-space-sm text-label-sm font-label-sm">
           <div className="bg-surface-container-low p-space-sm rounded-lg flex flex-col border border-outline-variant/10">
             <span className="text-outline">Assigned Officer</span>
-            <span className="text-on-surface font-semibold mt-0.5">Ananya Sharma (You)</span>
-            <span className="text-outline text-[10px]">IT Services Officer Desk</span>
+            <span className="text-on-surface font-semibold mt-0.5 truncate">{officerName}</span>
+            <span className="text-outline text-[10px] truncate">{departmentName}</span>
           </div>
 
           <div className="bg-surface-container-low p-space-sm rounded-lg flex flex-col border border-outline-variant/10">
             <span className="text-outline">Category Roster</span>
-            <span className="text-on-surface font-semibold mt-0.5">
+            <span className="text-on-surface font-semibold mt-0.5 truncate">
               {caseItem.previewCategory || caseItem.category}
             </span>
-            <span className="text-outline text-[10px]">{caseItem.section}</span>
+            <span className="text-outline text-[10px] truncate">{caseItem.section || 'General'}</span>
           </div>
 
           <div className="bg-surface-container-low p-space-sm rounded-lg flex flex-col border border-outline-variant/10">
             <span className="text-outline">First Filed On</span>
-            <span className="text-on-surface font-semibold mt-0.5">{caseItem.submitted}</span>
+            <span className="text-on-surface font-semibold mt-0.5">{caseItem.submitted || 'Recent'}</span>
           </div>
 
           <div className="bg-surface-container-low p-space-sm rounded-lg flex flex-col border border-outline-variant/10">
             <span className="text-outline">Redressal Mandate</span>
-            <span className="text-on-surface font-semibold mt-0.5">Regulation 7A</span>
+            <span className="text-on-surface font-semibold mt-0.5">Statutory Policy</span>
           </div>
         </div>
 
@@ -148,10 +152,10 @@ export default function QuickCaseInspectorDrawer({
             <span className="font-label-sm text-label-sm text-outline font-bold">
               Latest Internal Action Note:
             </span>
-            <span className="text-[11px] text-outline">{caseItem.latestNoteTime}</span>
+            <span className="text-[11px] text-outline">{caseItem.latestNoteTime || 'Recorded'}</span>
           </div>
           <p className="font-body-sm text-body-sm text-on-surface-variant bg-surface-container-low p-2 rounded-lg italic border border-outline-variant/10 leading-relaxed">
-            {caseItem.latestNote}
+            {caseItem.latestNote || 'Grievance docket active in officer queue.'}
           </p>
         </div>
 
@@ -159,7 +163,7 @@ export default function QuickCaseInspectorDrawer({
         <div className="flex flex-col gap-2 pt-2">
           <button
             type="button"
-            onClick={() => navigate(`/officer/grievance/${caseItem.id}`)}
+            onClick={() => navigate(`/officer/grievance/${caseItem.id || caseItem._id || caseItem.ticketId}`)}
             className="w-full py-2.5 bg-primary text-on-primary rounded-lg font-label-lg text-label-lg font-bold shadow-sm hover:bg-primary-container transition-all flex items-center justify-center gap-2 group cursor-pointer"
           >
             <span>Open Full Grievance Review</span>

@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function StudentCommunicationCard({ caseData, onTriggerToast }) {
+  const { user } = useAuth();
   const [messages, setMessages] = useState(caseData.messages || []);
   const [messageText, setMessageText] = useState('');
+
+  const officerName = user?.name || 'Grievance Officer';
+  const officerInitials = officerName
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'OF';
 
   const insertTemplate = (type) => {
     let t = '';
     if (type === 'request_serial') {
-      t = 'Please provide the exact asset barcodes stamped on the back panel of Bench 04 and Bench 07 oscilloscope units.';
+      t = 'Please provide the exact asset barcodes stamped on the back panel of the affected equipment.';
     } else if (type === 'request_confirm') {
-      t = 'Kindly confirm your upcoming practical slot timings so the field technician does not interrupt scheduled class batches.';
+      t = 'Kindly confirm your upcoming availability timings so the field technician can inspect without disruption.';
     } else if (type === 'request_attendant') {
-      t = 'Please confirm whether an incident note was recorded in the physical laboratory register with Mr. Verma on 11 Oct.';
+      t = 'Please confirm whether an incident note was recorded in the physical department register.';
     }
     setMessageText(t);
   };
@@ -24,9 +35,9 @@ export default function StudentCommunicationCard({ caseData, onTriggerToast }) {
 
     const newMessage = {
       id: `msg-${Date.now()}`,
-      sender: 'Ananya Sharma',
+      sender: officerName,
       role: 'Officer',
-      initials: 'AS',
+      initials: officerInitials,
       time: 'Just now',
       avatarBg: 'bg-primary text-on-primary',
       text: messageText.trim(),
@@ -68,7 +79,7 @@ export default function StudentCommunicationCard({ caseData, onTriggerToast }) {
                 msg.avatarBg || 'bg-primary text-on-primary'
               }`}
             >
-              {msg.initials}
+              {msg.initials || (msg.isStudent ? 'ST' : officerInitials)}
             </div>
             <div className={`flex flex-col gap-1 ${msg.isStudent ? '' : 'items-end'}`}>
               <div
@@ -124,14 +135,14 @@ export default function StudentCommunicationCard({ caseData, onTriggerToast }) {
             onClick={() => insertTemplate('request_confirm')}
             className="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm transition-colors cursor-pointer"
           >
-            + Confirm Lab Batch Hours
+            + Confirm Availability Hours
           </button>
           <button
             type="button"
             onClick={() => insertTemplate('request_attendant')}
             className="px-2.5 py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm transition-colors cursor-pointer"
           >
-            + Request Attendant Log Entry
+            + Request Register Log Entry
           </button>
         </div>
 

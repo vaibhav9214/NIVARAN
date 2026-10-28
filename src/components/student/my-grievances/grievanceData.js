@@ -1,3 +1,19 @@
+export function getAuthStudentInfo() {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem('nivaran_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u?.name) {
+          const initials = u.name.split(' ').filter(Boolean).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+          return { name: `${u.name} (You)`, initials: initials || 'ST' };
+        }
+      }
+    }
+  } catch (e) {}
+  return { name: 'Student (You)', initials: 'ST' };
+}
+
 export const GRIEVANCE_RECORDS = [
   {
     id: 'NIV-1024',
@@ -374,13 +390,13 @@ export function getGrievanceDetails(targetId) {
           initials: 'RS',
           timestamp: '20 Oct 2026, 02:30 PM',
           text:
-            'Hello Aditya, we deployed the network diagnostics sniffer on the Block B switch today at 2:00 PM. We noticed high channel interference on AP-04 and AP-07. A field technician has been dispatched to reconfigure the 5GHz frequency band and test packet drops.',
+            'Hello, we deployed the network diagnostics sniffer on the Block B switch today at 2:00 PM. We noticed high channel interference on AP-04 and AP-07. A field technician has been dispatched to reconfigure the 5GHz frequency band and test packet drops.',
         },
         {
           id: 2,
           sender: 'scholar',
-          name: 'Aditya Verma (You)',
-          initials: 'AV',
+          name: getAuthStudentInfo().name,
+          initials: getAuthStudentInfo().initials,
           timestamp: '20 Oct 2026, 03:45 PM',
           text:
             'Thank you, Er. Sundaram. The signal dropped completely again last night around 10:15 PM during our lab quiz. Looking forward to the technician visit.',
@@ -392,7 +408,7 @@ export function getGrievanceDetails(targetId) {
           initials: 'RS',
           timestamp: '20 Oct 2026, 04:15 PM',
           text:
-            'Understood. The technician (Rajesh) is scheduled for today between 4:30 PM and 6:00 PM. He will inspect the physical PoE injector in corridor B-2.',
+            'Understood. The field technician is scheduled for today between 4:30 PM and 6:00 PM. He will inspect the physical PoE injector in corridor B-2.',
         },
       ],
       stepper: {
@@ -483,8 +499,8 @@ export function getGrievanceDetails(targetId) {
       {
         id: 2,
         sender: 'scholar',
-        name: 'Aditya Verma (You)',
-        initials: 'AV',
+        name: getAuthStudentInfo().name,
+        initials: getAuthStudentInfo().initials,
         timestamp: `${matched.lastUpdated}, 11:20 AM`,
         text: 'Thank you for acknowledging. We are available at the site during morning hours.',
       },

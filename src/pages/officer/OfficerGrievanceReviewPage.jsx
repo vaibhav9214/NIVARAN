@@ -66,7 +66,19 @@ export default function OfficerGrievanceReviewPage() {
   const [actionNotes, setActionNotes] = useState('');
   const [targetStatus, setTargetStatus] = useState('In Progress');
   const [forwardDept, setForwardDept] = useState('MAINT');
+  const [departments, setDepartments] = useState(DEPARTMENTS);
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
+
+  useEffect(() => {
+    officerAPI.getDepartments()
+      .then((res) => {
+        if (res.data?.departments?.length > 0) {
+          setDepartments(res.data.departments);
+          setForwardDept(res.data.departments[0]?.code || res.data.departments[0]?.name || 'HOSTEL');
+        }
+      })
+      .catch((e) => console.warn('Could not fetch departments for officer review:', e));
+  }, []);
 
   // Fetch Grievance
   const fetchGrievance = useCallback(async () => {
@@ -759,9 +771,9 @@ export default function OfficerGrievanceReviewPage() {
                   onChange={(e) => setForwardDept(e.target.value)}
                   className="w-full p-2.5 text-xs rounded-xl border border-nivaran-border bg-nivaran-ivory text-nivaran-text"
                 >
-                  {DEPARTMENTS.map((d) => (
-                    <option key={d.code} value={d.code}>
-                      {d.name} ({d.code})
+                  {departments.map((d) => (
+                    <option key={d.code || d._id} value={d.code || d.name}>
+                      {d.name} {d.code ? `(${d.code})` : ''}
                     </option>
                   ))}
                 </select>

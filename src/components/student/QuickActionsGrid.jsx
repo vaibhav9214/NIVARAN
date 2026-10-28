@@ -24,7 +24,7 @@ export default function QuickActionsGrid({ onSubmitClick, onTrackClick, onArchiv
               Submit a Grievance
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-normal">
-              File a confidential or anonymous concern with AI automated cell routing and encrypted evidence storage.
+              File a confidential concern with AI automated cell routing and encrypted evidence storage.
             </p>
           </div>
         </div>
@@ -44,10 +44,10 @@ export default function QuickActionsGrid({ onSubmitClick, onTrackClick, onArchiv
           </div>
           <div className="mt-space-md">
             <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface group-hover:text-primary transition-colors">
-              Track Existing Docket
+              Track Status &amp; Inquiries
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-normal">
-              Enter tracking hash or 6-digit red-code to inspect official hearing schedules and ombudsman remarks.
+              Monitor active grievance progress, response deadlines, SLA countdowns, and direct messages.
             </p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export default function QuickActionsGrid({ onSubmitClick, onTrackClick, onArchiv
               View Resolution Archive
             </h3>
             <p className="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-normal">
-              Download certified PDF settlement letters, Dean signatures, and institutional audit trail records.
+              Download certified PDF settlement letters, official signoffs, and institutional audit records.
             </p>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function QuickActionsGrid({ onSubmitClick, onTrackClick, onArchiv
       <section className="flex flex-col sm:flex-row items-center justify-between px-space-md py-3 rounded-lg bg-surface-container-low border border-outline-variant/20 text-on-surface-variant font-body-sm text-body-sm mt-space-md">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-secondary text-[18px]">gavel</span>
-          <span>Redressal governed under UGC (Grievance Redressal) Regulations • IIT Delhi Internal Audit Cell</span>
+          <span>Redressal governed under UGC (Grievance Redressal) Regulations • NIVARAN Internal Audit Cell</span>
         </div>
         <div className="flex items-center gap-4 mt-2 sm:mt-0 font-label-md text-label-md text-secondary">
           <a
@@ -94,7 +94,7 @@ export default function QuickActionsGrid({ onSubmitClick, onTrackClick, onArchiv
           <a
             className="hover:underline"
             href="#ombudsman"
-            onClick={(e) => { e.preventDefault(); alert('Ombudsman Office: ombudsman@iitd.ac.in • Room 204 Main Admin'); }}
+            onClick={(e) => { e.preventDefault(); alert('Ombudsman Office: ombudsman@nivaran.edu • Room 204 Main Administration'); }}
           >
             Ombudsman Contact
           </a>

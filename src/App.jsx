@@ -91,6 +91,14 @@ export default function App() {
             }
           />
           <Route
+            path="/officer/case-queue"
+            element={
+              <ProtectedRoute allowedRoles={['officer', 'admin']}>
+                <AssignedGrievancesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/officer/grievance/:id"
             element={
               <ProtectedRoute allowedRoles={['officer', 'admin']}>

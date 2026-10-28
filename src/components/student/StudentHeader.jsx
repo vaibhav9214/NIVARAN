@@ -1,8 +1,24 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery = '', breadcrumb = 'Dashboard' }) {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const studentName = user?.name || 'Student';
+  const studentRole = user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Student';
+  const studentEmail = user?.email || 'Authenticated Student';
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (e) {
+      navigate('/login');
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 lg:left-[260px] right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-md z-30 border-b border-outline-variant/30 px-4 sm:px-space-lg flex items-center justify-between shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all">
@@ -56,20 +72,8 @@ export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery =
         </div>
       </div>
 
-      {/* Right side: Notifications & User Profile */}
+      {/* Right side: User Profile */}
       <div className="flex items-center gap-2 sm:gap-space-md">
-        {/* Notification Button */}
-        <button
-          onClick={() => alert('Notifications: 3 unread updates from Proctorial and Dean offices.')}
-          className="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors cursor-pointer"
-          title="3 Unread Notifications"
-        >
-          <span className="material-symbols-outlined text-[20px]">notifications</span>
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error ring-2 ring-surface-container-lowest animate-pulse"></span>
-        </button>
-
-        <div className="h-6 w-px bg-outline-variant/40"></div>
-
         {/* User Profile Pill */}
         <div
           onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -82,14 +86,14 @@ export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery =
           <div className="hidden md:flex flex-col items-start leading-none">
             <div className="flex items-center gap-1.5">
               <span className="font-label-lg text-label-lg text-on-surface group-hover:text-primary transition-colors">
-                Aditya Verma
+                {studentName}
               </span>
               <span className="bg-secondary-container text-on-secondary-container font-label-sm text-label-sm px-1.5 py-0.5 rounded-full font-medium">
-                Scholar
+                {studentRole}
               </span>
             </div>
-            <span className="font-body-sm text-body-sm text-on-surface-variant text-[11px] mt-0.5">
-              IIT Delhi
+            <span className="font-body-sm text-body-sm text-on-surface-variant text-[11px] mt-0.5 truncate max-w-[160px]">
+              {studentEmail}
             </span>
           </div>
 
@@ -99,18 +103,11 @@ export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery =
 
           {/* Profile Dropdown Menu */}
           {profileDropdownOpen && (
-            <div className="absolute right-0 top-11 w-52 bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant/30 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute right-0 top-11 w-56 bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant/30 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
               <div className="px-4 py-2 border-b border-outline-variant/20">
-                <p className="font-label-md font-bold text-on-surface">Aditya Verma</p>
-                <p className="font-body-sm text-xs text-outline font-mono">#IITD-2023-CS042</p>
+                <p className="font-label-md font-bold text-on-surface">{studentName}</p>
+                <p className="font-body-sm text-xs text-outline truncate">{studentEmail}</p>
               </div>
-              <a
-                href="#profile"
-                className="flex items-center gap-2 px-4 py-2 text-xs text-on-surface hover:bg-surface-container-low transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">account_circle</span>
-                Student Profile
-              </a>
               <Link
                 to="/student/raise-grievance"
                 className="flex items-center gap-2 px-4 py-2 text-xs text-primary hover:bg-surface-container-low transition-colors"
@@ -119,27 +116,21 @@ export default function StudentHeader({ onToggleSidebar, onSearch, searchQuery =
                 Raise a Grievance
               </Link>
               <Link
-                to="/officer/dashboard"
-                className="flex items-center gap-2 px-4 py-2 text-xs text-secondary hover:bg-surface-container-low transition-colors"
+                to="/student/my-grievances"
+                className="flex items-center gap-2 px-4 py-2 text-xs text-on-surface hover:bg-surface-container-low transition-colors"
               >
-                <span className="material-symbols-outlined text-[16px]">shield_person</span>
-                Officer Desk Portal
-              </Link>
-              <Link
-                to="/admin/dashboard"
-                className="flex items-center gap-2 px-4 py-2 text-xs text-primary hover:bg-surface-container-low transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">corporate_fare</span>
-                Admin Portal
+                <span className="material-symbols-outlined text-[16px]">list_alt</span>
+                My Grievances
               </Link>
               <div className="border-t border-outline-variant/20 mt-1 pt-1">
-                <Link
-                  to="/"
-                  className="flex items-center gap-2 px-4 py-2 text-xs text-error hover:bg-error-container hover:text-on-error-container transition-colors"
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full text-left flex items-center gap-2 px-4 py-2 text-xs text-error hover:bg-error-container hover:text-on-error-container transition-colors cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[16px]">logout</span>
-                  Sign Out to Landing
-                </Link>
+                  Sign Out
+                </button>
               </div>
             </div>
           )}

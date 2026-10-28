@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminHeader({
   onToggleSidebar,
@@ -9,6 +10,20 @@ export default function AdminHeader({
   breadcrumb = 'Overview',
 }) {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const adminName = user?.name || 'System Administrator';
+  const adminEmail = user?.email || 'admin@nivaran.edu';
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (e) {
+      navigate('/login');
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 lg:left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 px-4 sm:px-gutter flex items-center justify-between gap-space-md border-b border-outline-variant/30 transition-all">
@@ -33,7 +48,7 @@ export default function AdminHeader({
         <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm border border-outline-variant/20">
           <span className="w-2 h-2 rounded-full bg-secondary"></span>
           <span className="truncate max-w-[280px]">
-            Example Institute of Technology • Central Admin
+            NIVARAN • Central Administration
           </span>
         </div>
       </div>
@@ -54,20 +69,6 @@ export default function AdminHeader({
           />
         </div>
 
-        {/* Notifications */}
-        <button
-          type="button"
-          onClick={() =>
-            onTriggerToast &&
-            onTriggerToast('8 Dean alerts and 47 overdue dockets require statutory review.', 'notifications')
-          }
-          className="relative w-9 h-9 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
-          title="Administrative Alerts"
-        >
-          <span className="material-symbols-outlined text-[20px]">notifications</span>
-          <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-error ring-2 ring-surface"></span>
-        </button>
-
         {/* Admin User Profile Pill */}
         <div className="relative">
           <div
@@ -79,7 +80,7 @@ export default function AdminHeader({
             </div>
             <div className="hidden lg:flex flex-col text-left">
               <span className="font-label-sm text-label-sm text-on-surface font-semibold leading-tight">
-                Rahul Verma
+                {adminName}
               </span>
               <span className="font-label-sm text-label-sm text-on-surface-variant text-[10px] leading-tight">
                 Administrator
@@ -93,8 +94,8 @@ export default function AdminHeader({
               onClick={() => setProfileDropdownOpen(false)}
             >
               <div className="px-4 py-2 border-b border-outline-variant/20">
-                <div className="font-label-md text-label-md font-bold text-on-surface">Rahul Verma</div>
-                <div className="font-label-sm text-label-sm text-outline text-[11px]">Central Admin • Registrar Office</div>
+                <div className="font-label-md text-label-md font-bold text-on-surface">{adminName}</div>
+                <div className="font-label-sm text-label-sm text-outline text-[11px] truncate">{adminEmail}</div>
               </div>
               <Link
                 to="/admin/user-department-management"
@@ -104,27 +105,21 @@ export default function AdminHeader({
                 User &amp; Dept Management
               </Link>
               <Link
-                to="/officer/dashboard"
+                to="/admin/grievances-master"
                 className="w-full text-left px-4 py-2 text-on-surface hover:bg-surface-container flex items-center gap-2 font-label-md text-label-md transition-colors"
               >
-                <span className="material-symbols-outlined text-[18px] text-outline">shield_person</span>
-                Officer Desk Portal
-              </Link>
-              <Link
-                to="/student/dashboard"
-                className="w-full text-left px-4 py-2 text-on-surface hover:bg-surface-container flex items-center gap-2 font-label-md text-label-md transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px] text-outline">school</span>
-                Student Portal
+                <span className="material-symbols-outlined text-[18px] text-outline">table_rows</span>
+                Master Queue
               </Link>
               <div className="border-t border-outline-variant/20 my-1"></div>
-              <Link
-                to="/"
-                className="w-full text-left px-4 py-2 text-error hover:bg-error-container/20 flex items-center gap-2 font-label-md text-label-md transition-colors"
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-error hover:bg-error-container/20 flex items-center gap-2 font-label-md text-label-md transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px] text-error">logout</span>
                 Sign Out
-              </Link>
+              </button>
             </div>
           )}
         </div>

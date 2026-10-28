@@ -67,7 +67,7 @@ export default function RegisterPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Satyam Sharma"
+                  placeholder="e.g. Full Name"
                   className="w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border border-nivaran-border bg-nivaran-ivory text-nivaran-text focus:outline-none focus:ring-2 focus:ring-nivaran-primary/20 focus:border-nivaran-primary transition-all"
                 />
               </div>

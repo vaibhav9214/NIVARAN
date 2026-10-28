@@ -1,22 +1,31 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function OfficerSidebar({ isMobileOpen, onCloseMobile, activeNav = 'overview' }) {
   const location = useLocation();
+  const { user } = useAuth();
+
+  const officerName = user?.name || 'Grievance Officer';
+  const departmentName = user?.department?.name || (typeof user?.department === 'string' ? user.department : 'Grievance Department');
+  const initials = officerName
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'GO';
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: 'dashboard', path: '/officer/dashboard' },
-    { id: 'assigned-grievances', label: 'Assigned Grievances', icon: 'assignment', badge: '24', badgeColor: 'bg-surface-container text-primary font-bold', path: '/officer/assigned-grievances' },
-    { id: 'review-queue', label: 'Review Queue', icon: 'rate_review', badge: '8', badgeColor: 'bg-surface-container text-primary font-bold', path: '/officer/dashboard#queue' },
+    { id: 'assigned-grievances', label: 'Assigned Grievances', icon: 'assignment', badge: 'Active', badgeColor: 'bg-surface-container text-primary font-bold', path: '/officer/assigned-grievances' },
+    { id: 'review-queue', label: 'Review Queue', icon: 'rate_review', badge: 'Triage', badgeColor: 'bg-surface-container text-primary font-bold', path: '/officer/dashboard#queue' },
     { id: 'resolved-cases', label: 'Resolved Cases', icon: 'task_alt', path: '/officer/dashboard#resolved' },
-    { id: 'notifications', label: 'Notifications', icon: 'notifications', badge: '3', badgeColor: 'bg-error-container text-on-error-container font-bold', path: '/officer/dashboard#notifications' },
     { id: 'reports-and-insights', label: 'Reports & Insights', icon: 'analytics', path: '/officer/dashboard#reports' },
   ];
 
   const secondaryNav = [
-    { id: 'help', label: 'Help & Support', icon: 'help', path: '#help' },
-    { id: 'compliance', label: 'Privacy & Compliance', icon: 'verified_user', path: '#compliance' },
-    { id: 'logout', label: 'Exit to Platform Home', icon: 'logout', path: '/' },
+    { id: 'logout', label: 'Platform Home', icon: 'home', path: '/' },
   ];
 
   return (
@@ -112,16 +121,16 @@ export default function OfficerSidebar({ isMobileOpen, onCloseMobile, activeNav 
           <div className="p-space-sm rounded-lg bg-surface-container-low flex items-center gap-space-sm border border-outline-variant/20">
             <div className="relative flex-shrink-0">
               <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center font-label-md text-label-md text-on-primary font-bold">
-                AS
+                {initials}
               </div>
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-secondary ring-2 ring-surface-container-lowest"></span>
             </div>
             <div className="flex flex-col min-w-0 flex-1">
               <span className="font-label-md text-label-md text-on-surface truncate font-bold">
-                Ananya Sharma
+                {officerName}
               </span>
               <span className="font-label-sm text-label-sm text-outline truncate">
-                IT Services • Online
+                {departmentName} • Active
               </span>
             </div>
           </div>

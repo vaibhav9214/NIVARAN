@@ -20,18 +20,18 @@ export default function AdminTelemetryFooter({ onTriggerToast }) {
         </span>
         <div className="truncate text-xs">
           <span className="font-label-md text-label-md text-on-surface font-semibold">
-            Dean Office approved escalation dispatch
+            Authority approved escalation dispatch
           </span>
           <span className="text-outline mx-1.5">•</span>
           <span className="font-mono text-outline">#GRV-2026-0129</span>
           <span className="text-outline mx-1.5">•</span>
-          <span className="text-outline">14 mins ago by Prof. Ananya Roy</span>
+          <span className="text-outline">14 mins ago by Authorized Officer</span>
         </div>
       </div>
 
       <div className="flex items-center gap-4 text-xs shrink-0 w-full lg:w-auto justify-between lg:justify-end">
         <span className="font-label-sm text-label-sm text-outline hidden sm:inline">
-          Live Feed • Synced 14:52:10 IST • Example Institute of Technology
+          Live Feed • Synced with Central Registry
         </span>
 
         <div className="flex items-center gap-2">

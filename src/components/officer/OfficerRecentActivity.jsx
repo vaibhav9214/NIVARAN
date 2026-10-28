@@ -14,7 +14,7 @@ export default function OfficerRecentActivity({ onTriggerToast }) {
       id: 2,
       dotClass: 'bg-secondary',
       title: 'Added official update to GRV-2026-0142',
-      meta: 'Assigned technician Rajesh • 2 hours ago',
+      meta: 'Assigned field technician • 2 hours ago',
       link: '/officer/grievance/GRV-2026-0142',
     },
     {
@@ -60,18 +60,17 @@ export default function OfficerRecentActivity({ onTriggerToast }) {
                 {act.title}
               </div>
             )}
-            <div className="font-label-sm text-label-sm text-outline mt-0.5">{act.meta}</div>
+            <span className="font-body-sm text-xs text-outline">{act.meta}</span>
           </li>
         ))}
       </ol>
 
       <button
         type="button"
-        onClick={() => onTriggerToast && onTriggerToast('Opening Complete Cryptographic Audit Trail...', 'history')}
-        className="mt-space-md pt-space-sm border-t border-surface-container flex items-center justify-between font-label-md text-label-md text-primary font-bold hover:underline cursor-pointer text-left"
+        onClick={() => onTriggerToast && onTriggerToast('Full officer action log generated.', 'history')}
+        className="mt-space-md text-center font-label-sm text-label-sm text-primary hover:underline font-semibold cursor-pointer"
       >
-        <span>View My Audit History</span>
-        <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+        View Complete Event History →
       </button>
     </div>
   );

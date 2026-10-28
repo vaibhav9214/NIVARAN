@@ -20,7 +20,7 @@ export const OFFICER_REVIEW_DETAILS = {
     location: 'Physics Laboratory 2, Ramanujan Science Block',
     incidentDate: '11 October 2026 (During Morning Lab Batch)',
     impactScope: 'Coursework Practicals Disrupted (PH-201 cohort - 48 students)',
-    scholarIdentity: 'Rahul Sengupta • #IITD-2024-PH019',
+    scholarIdentity: 'Student Complainant • #IITD-2024-PH019',
     attachments: [
       {
         id: 'att-1',
@@ -46,7 +46,7 @@ export const OFFICER_REVIEW_DETAILS = {
     messages: [
       {
         id: 'msg-1',
-        sender: 'Rahul Sengupta',
+        sender: 'Student Complainant',
         role: 'Student',
         initials: 'RS',
         time: '13 Oct, 02:40 PM',
@@ -56,7 +56,7 @@ export const OFFICER_REVIEW_DETAILS = {
       },
       {
         id: 'msg-2',
-        sender: 'Ananya Sharma',
+        sender: 'Grievance Officer',
         role: 'Officer',
         initials: 'AS',
         time: '14 Oct, 09:30 AM',
@@ -68,7 +68,7 @@ export const OFFICER_REVIEW_DETAILS = {
     internalNotes: [
       {
         id: 'note-1',
-        author: 'Ananya Sharma (IT Liaison)',
+        author: 'Grievance Officer (IT Liaison)',
         time: '14 Oct, 10:15 AM',
         tag: 'Central Workshop Ticket #CW-882',
         text: 'Checked with Central Workshop. Spare diffraction grating assembly is currently in stock (Shelf B-12). Bench 4 oscilloscope requires firmware flash from vendor representative Mr. Khurana (Keysight contract).',
@@ -79,7 +79,7 @@ export const OFFICER_REVIEW_DETAILS = {
         id: 'audit-1',
         title: 'Docket Opened in Review Queue',
         time: '14 Oct 2026, 11:30 AM',
-        desc: 'Officer Ananya Sharma initialized primary inspection file.',
+        desc: 'Officer Grievance Officer initialized primary inspection file.',
         dotClass: 'bg-primary',
         innerClass: 'bg-on-primary',
       },
@@ -87,7 +87,7 @@ export const OFFICER_REVIEW_DETAILS = {
         id: 'audit-2',
         title: 'Case Assigned to Officer',
         time: '14 Oct 2026, 09:15 AM',
-        desc: 'Assigned to Officer Ananya Sharma (Infrastructure / IT Liaison Desk).',
+        desc: 'Assigned to Officer Grievance Officer (Infrastructure / IT Liaison Desk).',
         dotClass: 'bg-secondary',
         innerClass: 'bg-on-secondary',
       },
@@ -103,7 +103,7 @@ export const OFFICER_REVIEW_DETAILS = {
         id: 'audit-4',
         title: 'Grievance Lodged',
         time: '13 Oct 2026, 02:40 PM',
-        desc: 'Submitted by Scholar Rahul Sengupta (#IITD-2024-PH019) via NIVARAN Student Portal.',
+        desc: 'Submitted by Scholar Student Complainant (#IITD-2024-PH019) via NIVARAN Student Portal.',
         dotClass: 'bg-surface-dim',
         innerClass: 'bg-outline',
       },
@@ -120,7 +120,7 @@ export const OFFICER_REVIEW_DETAILS = {
         'Statutory response window requires official triage within 72 hours of docket intake. Dean escalation triggers automatically in 18 hours if unacknowledged.',
     },
     routing: {
-      officerName: 'Ananya Sharma',
+      officerName: 'Grievance Officer',
       initials: 'AS',
       role: 'Infrastructure Liaison • Active Desk',
       supervisingCell: 'Physical Infrastructure Committee',
@@ -196,7 +196,7 @@ export const OFFICER_REVIEW_DETAILS = {
     internalNotes: [
       {
         id: 'note-1',
-        author: 'Ananya Sharma (IT Liaison)',
+        author: 'Grievance Officer (IT Liaison)',
         time: '15 Oct, 09:30 AM',
         tag: 'Network NOC Dispatch #NET-402',
         text: 'Core switch logs indicate upstream port flap at 20:14 hrs. NOC engineer assigned for firmware rollback.',
@@ -232,7 +232,7 @@ export const OFFICER_REVIEW_DETAILS = {
         'Statutory 48h resolution window exceeded. Automatic escalation flag active on Dean dashboard.',
     },
     routing: {
-      officerName: 'Ananya Sharma',
+      officerName: 'Grievance Officer',
       initials: 'AS',
       role: 'IT Services Desk • Active Officer',
       supervisingCell: 'Campus Networking Council',

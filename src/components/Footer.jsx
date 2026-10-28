@@ -124,7 +124,7 @@ export default function Footer() {
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <p>© {new Date().getFullYear()} NIVARAN Redressal Framework. Governed under Institutional Grievance Regulations.</p>
           <div className="flex items-center gap-6">
-            <a href="#privacy" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
+
             <a href="#terms" className="hover:text-slate-300 transition-colors">Charter of Redressal</a>
             <a href="#sla" className="hover:text-slate-300 transition-colors">SLA Guidelines</a>
             <a href="#audit" className="hover:text-slate-300 transition-colors">Annual Audit Report</a>

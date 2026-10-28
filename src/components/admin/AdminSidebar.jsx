@@ -1,8 +1,20 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminSidebar({ isMobileOpen, onCloseMobile, activeNav = 'overview' }) {
   const location = useLocation();
+  const { user } = useAuth();
+
+  const adminName = user?.name || 'System Administrator';
+  const adminEmail = user?.email || 'admin@nivaran.edu';
+  const initials = adminName
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'SA';
 
   const navItems = [
     { id: 'overview', label: 'Overview', icon: 'dashboard', path: '/admin/dashboard' },
@@ -13,7 +25,6 @@ export default function AdminSidebar({ isMobileOpen, onCloseMobile, activeNav = 
     { id: 'user-management', label: 'User Management', icon: 'group', path: '/admin/user-department-management?tab=users' },
     { id: 'officer-management', label: 'Officer Management', icon: 'badge', path: '/admin/user-department-management?tab=officers' },
     { id: 'reports-and-exports', label: 'Reports & Exports', icon: 'query_stats', path: '/admin/dashboard#reports' },
-    { id: 'system-settings', label: 'System Settings', icon: 'tune', path: '/admin/dashboard#settings' },
   ];
 
   return (
@@ -94,17 +105,17 @@ export default function AdminSidebar({ isMobileOpen, onCloseMobile, activeNav = 
         <div className="p-space-md bg-surface-container-lowest m-space-sm rounded-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border border-outline-variant/30">
           <div className="flex items-center gap-space-sm">
             <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0 font-bold font-label-lg text-label-lg">
-              RV
+              {initials}
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-label-lg text-label-lg text-on-surface truncate font-bold leading-tight">
-                Rahul Verma
+                {adminName}
               </div>
               <div className="font-label-sm text-label-sm text-secondary truncate font-semibold leading-tight">
                 Institution Administrator
               </div>
               <div className="font-label-sm text-label-sm text-outline truncate text-[11px] leading-tight mt-0.5">
-                Example Institute of Technology
+                {adminEmail}
               </div>
             </div>
             <Link

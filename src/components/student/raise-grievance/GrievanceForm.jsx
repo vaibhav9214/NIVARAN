@@ -1,14 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, X, FileText, Sparkles, AlertCircle, CheckCircle2, Building, ShieldCheck } from 'lucide-react';
-
-const STANDARD_DEPARTMENTS = [
-  { code: 'HOSTEL', name: 'Hostel & Infrastructure' },
-  { code: 'ACAD', name: 'Academics & Examination' },
-  { code: 'MESS', name: 'Mess & Cafeteria' },
-  { code: 'MAINT', name: 'Maintenance & Works' },
-  { code: 'CS_AI', name: 'Computer Science & AI' },
-  { code: 'LIB', name: 'Library & Digital Services' },
-];
+import { studentAPI } from '../../../services/api';
 
 const CATEGORIES = [
   'Hostel & Residence',
@@ -34,6 +26,27 @@ export default function GrievanceForm({
   aiLoading,
 }) {
   const [validationErrors, setValidationErrors] = useState({});
+  const [departments, setDepartments] = useState([]);
+  const [loadingDepts, setLoadingDepts] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    studentAPI.getDepartments()
+      .then((res) => {
+        if (isMounted && res.data?.departments) {
+          setDepartments(res.data.departments);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load dynamic departments:', err);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingDepts(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -147,10 +160,10 @@ export default function GrievanceForm({
         </div>
 
         {/* Category & Department */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-nivaran-text mb-1">
-              Category <span className="text-nivaran-error">*</span>
+              Grievance Category <span className="text-nivaran-error">*</span>
             </label>
             <select
               name="category"
@@ -188,10 +201,12 @@ export default function GrievanceForm({
                   : 'border-nivaran-border focus:border-nivaran-primary'
               }`}
             >
-              <option value="">Select Department...</option>
-              {STANDARD_DEPARTMENTS.map((dept) => (
-                <option key={dept.code} value={dept.code}>
-                  {dept.name} ({dept.code})
+              <option value="">
+                {loadingDepts ? 'Loading departments from database...' : 'Select Department...'}
+              </option>
+              {departments.map((dept) => (
+                <option key={dept.code || dept._id} value={dept.code || dept.name}>
+                  {dept.name} {dept.code ? `(${dept.code})` : ''}
                 </option>
               ))}
             </select>

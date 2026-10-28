@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function InternalStaffNotesCard({ caseData, onTriggerToast }) {
+  const { user } = useAuth();
   const [notes, setNotes] = useState(caseData.internalNotes || []);
   const [noteText, setNoteText] = useState('');
+
+  const officerName = user?.name || 'Authorized Officer';
+  const deptName = user?.department?.name || (typeof caseData?.department === 'string' ? caseData.department : caseData?.department?.name) || 'Liaison';
 
   const handleAddNote = () => {
     if (!noteText.trim()) {
@@ -12,7 +17,7 @@ export default function InternalStaffNotesCard({ caseData, onTriggerToast }) {
 
     const newNote = {
       id: `note-${Date.now()}`,
-      author: 'Ananya Sharma (IT Liaison)',
+      author: `${officerName} (${deptName})`,
       time: 'Just now',
       tag: 'Internal Staff Memo',
       text: noteText.trim(),

@@ -16,10 +16,10 @@ export default function StitchNavbar({ activeTab = 'overview', onTabChange, onOp
 
   const navItems = [
     { id: 'overview', label: 'Overview', href: '#overview' },
-    { id: 'redressal-workflow', label: 'Redressal Workflow', href: '#redressal-workflow' },
+   
     { id: 'institutional-intelligence', label: 'Institutional Intelligence', href: '#tracking-section' },
     { id: 'tracking', label: 'Tracking', href: '#tracking-section' },
-    { id: 'petitions', label: 'Petitions', to: '/petitions' },
+   
   ];
 
   const handleNavClick = (item) => {
@@ -69,7 +69,7 @@ export default function StitchNavbar({ activeTab = 'overview', onTabChange, onOp
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
