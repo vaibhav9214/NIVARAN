@@ -3,10 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
   const [formData, setFormData] = useState({
-    category: 'Academics',
+    category: 'Academics & Evaluation',
     subject: '',
     description: '',
-    isAnonymous: true,
   });
   const navigate = useNavigate();
 
@@ -18,9 +17,20 @@ export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
 
     // This quick form does not create a backend record. Carry the draft to the
     // authenticated, fully validated form instead of showing a fake success.
+    const categoryMapping = {
+      'Academics & Evaluation': { category: 'Academics & Examination', department: 'ACAD' },
+      'Safety Hazard & Infrastructure': { category: 'Safety & Security', department: 'MAINT' },
+      'Hostel & Mess Amenities': { category: 'Hostel & Residence', department: 'HOSTEL' },
+      'Harassment / Internal Complaints (ICC)': { category: 'Student Services & Welfare', department: '' },
+      'Administrative & Finance': { category: 'Administrative & Registry', department: '' },
+    };
+    const mappedCategory = categoryMapping[formData.category] || {};
+
     const draft = {
       title: formData.subject.trim(),
       description: formData.description.trim(),
+      category: mappedCategory.category || '',
+      department: mappedCategory.department || '',
     };
     onClose();
     navigate('/student/raise-grievance', { state: { draft } });
@@ -28,10 +38,9 @@ export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
 
   const handleReset = () => {
     setFormData({
-      category: 'Academics',
+      category: 'Academics & Evaluation',
       subject: '',
       description: '',
-      isAnonymous: true,
     });
     onClose();
   };
@@ -60,23 +69,9 @@ export default function LodgeModal({ isOpen, onClose, onGrievanceCreated }) {
         </div>
 
         <form onSubmit={handleSubmit} className="py-4 space-y-4">
-            {/* Anonymity Switch */}
-            <div className="p-3 rounded-xl bg-surface-container-low flex items-center justify-between gap-3">
-              <div>
-                <span className="font-label-md text-label-md font-bold text-on-surface block">
-                  Zero-Knowledge Anonymity
-                </span>
-                <span className="text-outline text-xs block">
-                  Mask roll number &amp; identity from reviewing faculty.
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={formData.isAnonymous}
-                onChange={(e) => setFormData({ ...formData, isAnonymous: e.target.checked })}
-                className="w-5 h-5 accent-primary cursor-pointer"
-              />
-            </div>
+            <p className="text-xs text-outline bg-surface-container-low p-3 rounded-xl">
+              Continue to the secure grievance form to review the required details before submitting. This quick form does not submit or register a grievance.
+            </p>
 
             {/* Category */}
             <div>
